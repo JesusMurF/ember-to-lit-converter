@@ -7,7 +7,7 @@ Convertir componentes Ember a Lit, automatizando el 70-80% del trabajo y marcand
 ## Arquitectura
 
 ```
-Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer → Archivo
+Ember → Parser → AST → Extractor → IR → Generator → Lit
 ```
 
 **Componentes:**
@@ -23,8 +23,9 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer �
 {
   className: string,
   trackedProperties: [{ name: string, initialValue: any }],
-  imports: [{ source: string, specifiers: string[] }]
-  // Futuro: methods, computedProperties, services
+  imports: [{ source: string, specifiers: string[] }],
+  methods: [{ name: string, params: string[] }]
+  // Futuro: computedProperties, services
 }
 ```
 
@@ -45,8 +46,8 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer �
 
 **MVP (actual y próximo):**
 
-- ✅ Clase, @tracked props, imports
-- 🔜 Métodos simples, event handlers, templates básicos (interpolación, if, each)
+- ✅ Clase, @tracked props, imports, methods
+- 🔜 event handlers, templates básicos (interpolación, if, each)
 
 **Fuera de scope inicial:**
 Servicios, observers, mixins, modifiers complejos, routing
@@ -55,7 +56,7 @@ Servicios, observers, mixins, modifiers complejos, routing
 
 ✅ Parser, Extractor, Generator, Writer funcionando
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
-🔜 Extraer métodos, parsear templates Handlebars
+🔜 parsear templates Handlebars
 
 ## Comandos
 
@@ -82,10 +83,6 @@ traverse(ast, {
 ```
 
 **IR:** Representación neutral entre frameworks. Captura semántica, no implementación.
-
-## Notas
-
-- Archivos generados → `./output/` (gitignored)
 
 ## Git
 
