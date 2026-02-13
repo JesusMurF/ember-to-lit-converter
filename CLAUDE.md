@@ -91,7 +91,7 @@ traverse(ast, {
 
 **Convención:** [Conventional Commits](https://www.conventionalcommits.org/)
 
-**Formato:** `<tipo>(<alcance>): <descripción>`
+**Formato:** `<tipo>(<alcance>): <descripción en 2 lineas como máximo>`
 
 **Tipos permitidos:**
 
