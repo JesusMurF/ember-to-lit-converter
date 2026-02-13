@@ -116,3 +116,9 @@ traverse(ast, {
 - `test(generator): add unit tests for Lit template output`
 - `docs(readme): update architecture diagram`
 - `chore: install vitest as test runner`
+
+**Flujo de Trabajo (Git)**
+
+- **Rama principal:** `main` (siempre estable).
+- **Ramas de trabajo:** Crear ramas `feat/nombre-de-la-feature` o `fix/nombre-de-la-feature` para cambios significativos.
+- **Antes de mergear:** Es obligatorio pasar los tests unitarios
