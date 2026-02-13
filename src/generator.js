@@ -49,9 +49,18 @@ function generateProperties(info) {
 }
 
 function generateMethods(info) {
-  // Por ahora, dejamos esto vacío
-  // Aquí irían los métodos del componente cuando los extraigamos
-  return '';
+  if (!info.methods || info.methods.length === 0) {
+    return '';
+  }
+
+  const methods = info.methods.map((method) => {
+    const params = method.params.join(', ');
+    return `  ${method.name}(${params}) {
+    // TODO: Implementar lógica del método
+  }`;
+  });
+
+  return methods.join('\n\n') + '\n';
 }
 
 function generateRenderMethod() {
