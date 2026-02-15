@@ -5,6 +5,7 @@ export function extractComponentInfo(ast) {
     className: null,
     trackedProperties: [],
     imports: [],
+    methods: [],
   };
 
   traverse.default(ast, {
@@ -44,6 +45,23 @@ export function extractComponentInfo(ast) {
       });
 
       info.imports.push(importInfo);
+    },
+
+    ClassMethod(path) {
+      // Only extract regular methods (ignore constructors, getters, setters)
+      if (path.node.kind === 'method') {
+        // Extract method name
+        const methodName = path.node.key.name;
+
+        // Extract parameter names
+        const paramNames = path.node.params.map((param) => param.name);
+
+        // Add to methods array
+        info.methods.push({
+          name: methodName,
+          params: paramNames,
+        });
+      }
     },
   });
 

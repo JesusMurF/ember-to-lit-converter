@@ -7,7 +7,7 @@ Convertir componentes Ember a Lit, automatizando el 70-80% del trabajo y marcand
 ## Arquitectura
 
 ```
-Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer → Archivo
+Ember → Parser → AST → Extractor → IR → Generator → Lit
 ```
 
 **Componentes:**
@@ -23,8 +23,9 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer �
 {
   className: string,
   trackedProperties: [{ name: string, initialValue: any }],
-  imports: [{ source: string, specifiers: string[] }]
-  // Futuro: methods, computedProperties, services
+  imports: [{ source: string, specifiers: string[] }],
+  methods: [{ name: string, params: string[] }]
+  // Futuro: computedProperties, services
 }
 ```
 
@@ -41,12 +42,17 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit → Writer �
 - Node.js ES modules
 - `@babel/parser`, `@babel/traverse`
 
+## API Framework
+
+**Fastify** fue seleccionado para la capa HTTP:
+
+- **Performance:** 2x más rápido que Express, crítico para parsing intensivo en CPU
+- **Validación integrada:** JSON Schema validation vía Ajv sin dependencias extra
+- **Async/await moderno:** Soporte nativo para promesas
+- **Consistencia:** Alineado con ES modules y test runner nativo de Node.js
+- **Logging integrado:** Pino logger incluido
+
 ## Scope
-
-**MVP (actual y próximo):**
-
-- ✅ Clase, @tracked props, imports
-- 🔜 Métodos simples, event handlers, templates básicos (interpolación, if, each)
 
 **Fuera de scope inicial:**
 Servicios, observers, mixins, modifiers complejos, routing
@@ -55,7 +61,8 @@ Servicios, observers, mixins, modifiers complejos, routing
 
 ✅ Parser, Extractor, Generator, Writer funcionando
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
-🔜 Extraer métodos, parsear templates Handlebars
+✅ API HTTP con Fastify
+🔜 parsear templates Handlebars
 
 ## Comandos
 
@@ -83,15 +90,11 @@ traverse(ast, {
 
 **IR:** Representación neutral entre frameworks. Captura semántica, no implementación.
 
-## Notas
-
-- Archivos generados → `./output/` (gitignored)
-
 ## Git
 
 **Convención:** [Conventional Commits](https://www.conventionalcommits.org/)
 
-**Formato:** `<tipo>(<alcance>): <descripción>`
+**Formato:** `<tipo>(<alcance>): <descripción en 1 linea como máximo de 72 carácteres>`
 
 **Tipos permitidos:**
 
@@ -116,3 +119,9 @@ traverse(ast, {
 - `test(generator): add unit tests for Lit template output`
 - `docs(readme): update architecture diagram`
 - `chore: install vitest as test runner`
+
+**Flujo de Trabajo (Git)**
+
+- **Rama principal:** `main` (siempre estable).
+- **Ramas de trabajo:** Crear ramas `feat/nombre-de-la-feature` o `fix/nombre-de-la-feature` para cambios significativos.
+- **Antes de mergear:** Es obligatorio pasar los tests unitarios

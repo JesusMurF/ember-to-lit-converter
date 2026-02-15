@@ -1,0 +1,42 @@
+import { test } from 'node:test';
+import assert from 'node:assert';
+import { parseEmberComponent } from '../src/parser.js';
+
+test('parseEmberComponent returns AST with Program body', () => {
+  const ast = parseEmberComponent('./src/example-component.js');
+  assert.strictEqual(ast.type, 'File');
+  assert.ok(ast.program.body.length > 0);
+});
+
+test('parseEmberComponent throws error on invalid JavaScript syntax', () => {
+  const invalidCode = `
+    import Component from '@glimmer/component';
+
+    export default class BrokenComponent extends Component {
+      @tracked count = ;  // sintaxis inválida
+    }
+  `;
+
+  assert.throws(
+    () => parseEmberComponent(invalidCode),
+    {
+      name: 'Error',
+      message: 'Sintáxis del código Javascript del componente inválida'
+    }
+  );
+});
+
+test('parseEmberComponent accepts valid code as string', () => {
+  const validCode = `
+    import Component from '@glimmer/component';
+    import { tracked } from '@glimmer/tracking';
+
+    export default class TestComponent extends Component {
+      @tracked count = 0;
+    }
+  `;
+
+  const ast = parseEmberComponent(validCode);
+  assert.strictEqual(ast.type, 'File');
+  assert.ok(ast.program.body.length > 0);
+});
