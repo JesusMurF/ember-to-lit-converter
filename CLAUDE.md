@@ -42,12 +42,17 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
 - Node.js ES modules
 - `@babel/parser`, `@babel/traverse`
 
+## API Framework
+
+**Fastify** fue seleccionado para la capa HTTP:
+
+- **Performance:** 2x más rápido que Express, crítico para parsing intensivo en CPU
+- **Validación integrada:** JSON Schema validation vía Ajv sin dependencias extra
+- **Async/await moderno:** Soporte nativo para promesas
+- **Consistencia:** Alineado con ES modules y test runner nativo de Node.js
+- **Logging integrado:** Pino logger incluido
+
 ## Scope
-
-**MVP (actual y próximo):**
-
-- ✅ Clase, @tracked props, imports, methods
-- 🔜 event handlers, templates básicos (interpolación, if, each)
 
 **Fuera de scope inicial:**
 Servicios, observers, mixins, modifiers complejos, routing
@@ -56,6 +61,7 @@ Servicios, observers, mixins, modifiers complejos, routing
 
 ✅ Parser, Extractor, Generator, Writer funcionando
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
+✅ API HTTP con Fastify
 🔜 parsear templates Handlebars
 
 ## Comandos
@@ -88,7 +94,7 @@ traverse(ast, {
 
 **Convención:** [Conventional Commits](https://www.conventionalcommits.org/)
 
-**Formato:** `<tipo>(<alcance>): <descripción en 2 lineas como máximo>`
+**Formato:** `<tipo>(<alcance>): <descripción en 1 linea como máximo de 72 carácteres>`
 
 **Tipos permitidos:**
 
