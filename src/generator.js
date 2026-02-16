@@ -25,11 +25,13 @@ function generateImports(info) {
 function generateClass(info) {
   const className = info.className;
   const properties = generateProperties(info);
+  const getters = generateGetters(info);
   const methods = generateMethods(info);
   const renderMethod = generateRenderMethod();
 
   return `export class ${className} extends LitElement {
     ${properties}
+    ${getters}
     ${methods}
     ${renderMethod}
     }`;
@@ -46,6 +48,20 @@ function generateProperties(info) {
   });
 
   return props.join('\n') + '\n';
+}
+
+function generateGetters(info) {
+  if (!info.getters || info.getters.length === 0) {
+    return '';
+  }
+
+  const getters = info.getters.map((getter) => {
+    return `  get ${getter.name}() {
+    // TODO: Implementar lógica del getter
+  }`;
+  });
+
+  return getters.join('\n\n') + '\n';
 }
 
 function generateMethods(info) {

@@ -6,6 +6,7 @@ export function extractComponentInfo(ast) {
     trackedProperties: [],
     imports: [],
     methods: [],
+    getters: [],
   };
 
   traverse.default(ast, {
@@ -60,6 +61,14 @@ export function extractComponentInfo(ast) {
         info.methods.push({
           name: methodName,
           params: paramNames,
+        });
+      } else if (path.node.kind === 'get') {
+        // Extract getter name
+        const getterName = path.node.key.name;
+
+        // Add to getters array
+        info.getters.push({
+          name: getterName,
         });
       }
     },

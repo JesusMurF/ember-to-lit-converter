@@ -62,7 +62,15 @@ Servicios, observers, mixins, modifiers complejos, routing
 ✅ Parser, Extractor, Generator, Writer funcionando
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
 ✅ API HTTP con Fastify
-🔜 parsear templates Handlebars
+🔜 Extender nuestra aplicación para que transforme:
+
+- getters
+- setters
+- constructor
+- @action
+- @computed
+
+  🔜 parsear templates Handlebars
 
 ## Comandos
 
@@ -89,6 +97,8 @@ traverse(ast, {
 ```
 
 **IR:** Representación neutral entre frameworks. Captura semántica, no implementación.
+
+Cuando extendamos las capacidades de nuestro transformador de código iremos paso a paso. Primero modificar el extractor y luego el generador. Pero debo especificarte yo los pasos explicitamente.
 
 ## Git
 

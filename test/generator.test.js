@@ -186,3 +186,64 @@ test('generateLitComponent generates multiple methods', () => {
   assert.ok(addIndex < subtractIndex);
   assert.ok(subtractIndex < resetIndex);
 });
+
+test('generateLitComponent generates getter', () => {
+  const info = {
+    className: 'TestComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [{ name: 'fullName' }]
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('get fullName()'));
+});
+
+test('generateLitComponent generates multiple getters', () => {
+  const info = {
+    className: 'PersonComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [
+      { name: 'fullName' },
+      { name: 'initials' }
+    ]
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('get fullName()'));
+  assert.ok(output.includes('get initials()'));
+});
+
+test('generateLitComponent maintains standard class order: properties, getters, methods, render', () => {
+  const info = {
+    className: 'CompleteComponent',
+    trackedProperties: [{ name: 'count', initialValue: 0 }],
+    imports: [],
+    methods: [{ name: 'increment', params: [] }],
+    getters: [{ name: 'doubleCount' }]
+  };
+
+  const output = generateLitComponent(info);
+
+  // Find positions of each section
+  const propertyIndex = output.indexOf('@property() count');
+  const getterIndex = output.indexOf('get doubleCount()');
+  const methodIndex = output.indexOf('increment()');
+  const renderIndex = output.indexOf('render()');
+
+  // Verify all sections are present
+  assert.ok(propertyIndex > -1, 'property should be present');
+  assert.ok(getterIndex > -1, 'getter should be present');
+  assert.ok(methodIndex > -1, 'method should be present');
+  assert.ok(renderIndex > -1, 'render should be present');
+
+  // Verify correct order: properties < getters < methods < render
+  assert.ok(propertyIndex < getterIndex, 'properties should come before getters');
+  assert.ok(getterIndex < methodIndex, 'getters should come before methods');
+  assert.ok(methodIndex < renderIndex, 'methods should come before render');
+});

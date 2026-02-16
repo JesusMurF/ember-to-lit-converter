@@ -171,3 +171,70 @@ test('extractComponentInfo extracts multiple methods', () => {
   assert.strictEqual(info.methods[2].name, 'reset');
   assert.deepStrictEqual(info.methods[2].params, []);
 });
+
+test('extractComponentInfo extracts getter', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class UserComponent extends Component {
+      get fullName() {
+        return this.firstName + ' ' + this.lastName;
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.ok(Array.isArray(info.getters));
+  assert.strictEqual(info.getters.length, 1);
+  assert.strictEqual(info.getters[0].name, 'fullName');
+});
+
+test('extractComponentInfo extracts multiple getters', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class PersonComponent extends Component {
+      get fullName() {
+        return this.firstName + ' ' + this.lastName;
+      }
+
+      get initials() {
+        return this.firstName[0] + this.lastName[0];
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.getters.length, 2);
+  assert.strictEqual(info.getters[0].name, 'fullName');
+  assert.strictEqual(info.getters[1].name, 'initials');
+});
+
+test('extractComponentInfo handles getters and methods together', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class MixedComponent extends Component {
+      get total() {
+        return this.items.length;
+      }
+
+      handleClick() {
+        console.log('clicked');
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.getters.length, 1);
+  assert.strictEqual(info.getters[0].name, 'total');
+
+  assert.strictEqual(info.methods.length, 1);
+  assert.strictEqual(info.methods[0].name, 'handleClick');
+});
