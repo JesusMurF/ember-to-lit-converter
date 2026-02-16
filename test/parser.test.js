@@ -17,13 +17,10 @@ test('parseEmberComponent throws error on invalid JavaScript syntax', () => {
     }
   `;
 
-  assert.throws(
-    () => parseEmberComponent(invalidCode),
-    {
-      name: 'Error',
-      message: 'Sintáxis del código Javascript del componente inválida'
-    }
-  );
+  assert.throws(() => parseEmberComponent(invalidCode), {
+    name: 'Error',
+    message: 'Ember component syntax error',
+  });
 });
 
 test('parseEmberComponent accepts valid code as string', () => {

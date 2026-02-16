@@ -20,6 +20,6 @@ export function parseEmberComponent(filePathOrCode) {
     });
     return ast;
   } catch (error) {
-    throw new Error('Sintáxis del código Javascript del componente inválida');
+    throw new Error('Ember component syntax error');
   }
 }
