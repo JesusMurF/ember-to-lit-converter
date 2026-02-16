@@ -1,15 +1,20 @@
 import fs from 'fs';
 import * as parser from '@babel/parser';
 
+/**
+ * Parses an Ember component into an Abstract Syntax Tree (AST).
+ * Accepts either a file path or raw JavaScript code string.
+ *
+ * @param {string} filePathOrCode - File path to an Ember component or raw JavaScript code
+ * @returns {object} Babel AST representing the parsed component
+ * @throws {Error} Throws 'Ember component syntax error' if parsing fails
+ */
 export function parseEmberComponent(filePathOrCode) {
   let code;
 
-  // Detectar si es una ruta de archivo o código directo
   if (fs.existsSync(filePathOrCode)) {
-    // Es una ruta de archivo, leer el contenido
     code = fs.readFileSync(filePathOrCode, 'utf-8');
   } else {
-    // Es código directo
     code = filePathOrCode;
   }
 
@@ -20,6 +25,6 @@ export function parseEmberComponent(filePathOrCode) {
     });
     return ast;
   } catch (error) {
-    throw new Error('Sintáxis del código Javascript del componente inválida');
+    throw new Error('Ember component syntax error');
   }
 }

@@ -1,20 +1,28 @@
+/**
+ * Generates Lit component code from the Intermediate Representation (IR).
+ * Creates imports, class declaration, properties, methods, getters, and render method.
+ *
+ * @param {object} info - IR object containing component structure
+ * @returns {string} Complete Lit component code as a string
+ */
 export function generateLitComponent(info) {
-  // Generar los imports necesarios
   const imports = generateImports(info);
-
-  // Generar la clase
   const classDeclaration = generateClass(info);
 
   return `${imports}\n\n${classDeclaration}`;
 }
 
+/**
+ * Generates import statements for the Lit component.
+ *
+ * @param {object} info - IR object containing component structure
+ * @returns {string} Import statements as a string
+ */
 function generateImports(info) {
   const imports = [];
 
-  // Import básico de Lit
   imports.push(`import { LitElement, html } from 'lit';`);
 
-  // Si hay propiedades tracked, necesitamos el decorador
   if (info.trackedProperties.length > 0) {
     imports.push(`import { property } from 'lit/decorators.js';`);
   }
@@ -22,6 +30,12 @@ function generateImports(info) {
   return imports.join('\n');
 }
 
+/**
+ * Generates the complete Lit class declaration.
+ *
+ * @param {object} info - IR object containing component structure
+ * @returns {string} Class declaration with all members
+ */
 function generateClass(info) {
   const className = info.className;
   const properties = generateProperties(info);
@@ -37,6 +51,12 @@ function generateClass(info) {
     }`;
 }
 
+/**
+ * Generates property declarations with @property decorators.
+ *
+ * @param {object} info - IR object containing trackedProperties
+ * @returns {string} Property declarations or empty string
+ */
 function generateProperties(info) {
   if (info.trackedProperties.length === 0) {
     return '';
@@ -50,6 +70,12 @@ function generateProperties(info) {
   return props.join('\n') + '\n';
 }
 
+/**
+ * Generates getter method declarations.
+ *
+ * @param {object} info - IR object containing getters
+ * @returns {string} Getter declarations or empty string
+ */
 function generateGetters(info) {
   if (!info.getters || info.getters.length === 0) {
     return '';
@@ -64,6 +90,12 @@ function generateGetters(info) {
   return getters.join('\n\n') + '\n';
 }
 
+/**
+ * Generates method declarations.
+ *
+ * @param {object} info - IR object containing methods
+ * @returns {string} Method declarations or empty string
+ */
 function generateMethods(info) {
   if (!info.methods || info.methods.length === 0) {
     return '';
@@ -79,6 +111,11 @@ function generateMethods(info) {
   return methods.join('\n\n') + '\n';
 }
 
+/**
+ * Generates the render method declaration.
+ *
+ * @returns {string} Render method declaration
+ */
 function generateRenderMethod() {
   return `  render() {
     return html\`

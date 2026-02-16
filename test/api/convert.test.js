@@ -41,7 +41,7 @@ test('POST /api/convert returns 400 for invalid JavaScript syntax', async () => 
         import Component from '@glimmer/component';
 
         export default class BrokenComponent extends Component {
-          @tracked count = ;  // invalid syntax
+          @tracked count = ;
         }
       `
     }
@@ -73,7 +73,6 @@ test('POST /api/convert returns 400 when code is missing', async () => {
 test('POST /api/convert returns 400 when code exceeds max length', async () => {
   const server = buildServer({ logLevel: 'silent' });
 
-  // Generate code larger than 100KB
   const largeCode = 'a'.repeat(102401);
 
   const response = await server.inject({

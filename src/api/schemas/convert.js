@@ -1,3 +1,9 @@
+/**
+ * JSON Schema for the conversion request body.
+ * Validates that the Ember component code is provided and within size limits (1 byte to 100KB).
+ *
+ * @type {object}
+ */
 export const convertRequestSchema = {
   type: 'object',
   required: ['code'],
@@ -5,12 +11,18 @@ export const convertRequestSchema = {
     code: {
       type: 'string',
       minLength: 1,
-      maxLength: 102400, // 100KB limit
+      maxLength: 102400,
       description: 'Ember component JavaScript code to convert'
     }
   }
 };
 
+/**
+ * JSON Schema for successful conversion responses (HTTP 200).
+ * Contains the generated Lit component code.
+ *
+ * @type {object}
+ */
 export const convertResponseSchema = {
   type: 'object',
   required: ['litCode'],
@@ -22,6 +34,12 @@ export const convertResponseSchema = {
   }
 };
 
+/**
+ * JSON Schema for error responses (HTTP 400 and 500).
+ * Provides error message and optional additional details.
+ *
+ * @type {object}
+ */
 export const errorResponseSchema = {
   type: 'object',
   required: ['error'],

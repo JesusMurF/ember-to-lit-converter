@@ -100,6 +100,57 @@ traverse(ast, {
 
 Cuando extendamos las capacidades de nuestro transformador de código iremos paso a paso. Primero modificar el extractor y luego el generador. Pero debo especificarte yo los pasos explicitamente.
 
+## Documentación con JSDoc
+
+**Directrices generales:**
+
+- Toda documentación debe estar en **inglés**
+- Preferir JSDoc sobre comentarios single-line para funciones y exports
+- Documentar todas las funciones exportadas y APIs públicas
+- Mantener la documentación **concisa pero clara**
+- No documentar cada propiedad interna de objetos a menos que sea necesario
+
+**¿Qué documentar?**
+
+- Funciones exportadas (`export function`, `export async function`)
+- Constantes exportadas con esquemas o configuración
+- Parámetros de funciones (usando `@param`)
+- Valores de retorno (usando `@returns`)
+- Funciones asíncronas (usando `@async`)
+- Errores que puede lanzar (usando `@throws`)
+
+**Ejemplo correcto:**
+
+```javascript
+/**
+ * Converts an Ember component to a Lit component.
+ *
+ * @async
+ * @param {object} request - Fastify request object with body.code
+ * @param {object} reply - Fastify reply object
+ * @returns {Promise<{litCode: string}>} Generated Lit component code
+ * @throws {Error} Returns 400 for syntax errors, 500 for unexpected errors
+ */
+export async function handler(request, reply) {
+  // implementation
+}
+```
+
+**Ejemplo incorrecto:**
+
+```javascript
+/**
+ * Converts an Ember component to a Lit component.
+ *
+ * @async
+ * @param {object} request - Fastify request object
+ * @param {object} request.body - Request body
+ * @param {string} request.body.code - Ember code
+ * @param {number} request.body.length - Code length
+ * // ... demasiado detalle innecesario
+ */
+```
+
 ## Git
 
 **Convención:** [Conventional Commits](https://www.conventionalcommits.org/)

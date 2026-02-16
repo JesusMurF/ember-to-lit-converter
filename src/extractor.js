@@ -1,5 +1,12 @@
 import traverse from '@babel/traverse';
 
+/**
+ * Extracts component information from a Babel AST into an Intermediate Representation (IR).
+ * Traverses the AST to extract class name, tracked properties, imports, methods, and getters.
+ *
+ * @param {object} ast - Babel AST of an Ember component
+ * @returns {object} IR object containing className, trackedProperties, imports, methods, and getters
+ */
 export function extractComponentInfo(ast) {
   const info = {
     className: null,
@@ -11,12 +18,10 @@ export function extractComponentInfo(ast) {
 
   traverse.default(ast, {
     ClassDeclaration(path) {
-      // Extraer el nombre de la clase
       info.className = path.node.id.name;
     },
 
     ClassProperty(path) {
-      // Verificar si tiene el decorador @tracked
       const hasTrackedDecorator = path.node.decorators?.some(
         (decorator) => decorator.expression.name === 'tracked',
       );
@@ -30,13 +35,11 @@ export function extractComponentInfo(ast) {
     },
 
     ImportDeclaration(path) {
-      // Extraer información de los imports
       const importInfo = {
         source: path.node.source.value,
         specifiers: [],
       };
 
-      // Recorrer todos los especificadores del import
       path.node.specifiers.forEach((spec) => {
         if (spec.type === 'ImportDefaultSpecifier') {
           importInfo.specifiers.push(spec.local.name);
@@ -49,24 +52,17 @@ export function extractComponentInfo(ast) {
     },
 
     ClassMethod(path) {
-      // Only extract regular methods (ignore constructors, getters, setters)
       if (path.node.kind === 'method') {
-        // Extract method name
         const methodName = path.node.key.name;
-
-        // Extract parameter names
         const paramNames = path.node.params.map((param) => param.name);
 
-        // Add to methods array
         info.methods.push({
           name: methodName,
           params: paramNames,
         });
       } else if (path.node.kind === 'get') {
-        // Extract getter name
         const getterName = path.node.key.name;
 
-        // Add to getters array
         info.getters.push({
           name: getterName,
         });

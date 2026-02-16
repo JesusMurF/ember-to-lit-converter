@@ -13,17 +13,14 @@ test('parseEmberComponent throws error on invalid JavaScript syntax', () => {
     import Component from '@glimmer/component';
 
     export default class BrokenComponent extends Component {
-      @tracked count = ;  // sintaxis inválida
+      @tracked count = ;
     }
   `;
 
-  assert.throws(
-    () => parseEmberComponent(invalidCode),
-    {
-      name: 'Error',
-      message: 'Sintáxis del código Javascript del componente inválida'
-    }
-  );
+  assert.throws(() => parseEmberComponent(invalidCode), {
+    name: 'Error',
+    message: 'Ember component syntax error',
+  });
 });
 
 test('parseEmberComponent accepts valid code as string', () => {
