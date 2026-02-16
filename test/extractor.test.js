@@ -93,16 +93,9 @@ test('extractComponentInfo extracts method without parameters', () => {
   const ast = parseEmberComponent(code);
   const info = extractComponentInfo(ast);
 
-  // Verify methods array exists
   assert.ok(Array.isArray(info.methods));
-
-  // Verify one method was extracted
   assert.strictEqual(info.methods.length, 1);
-
-  // Verify method name
   assert.strictEqual(info.methods[0].name, 'handleClick');
-
-  // Verify params is empty array
   assert.ok(Array.isArray(info.methods[0].params));
   assert.strictEqual(info.methods[0].params.length, 0);
 });
@@ -122,13 +115,8 @@ test('extractComponentInfo extracts method with parameters', () => {
   const ast = parseEmberComponent(code);
   const info = extractComponentInfo(ast);
 
-  // Verify one method was extracted
   assert.strictEqual(info.methods.length, 1);
-
-  // Verify method name
   assert.strictEqual(info.methods[0].name, 'submitForm');
-
-  // Verify params array has correct names
   assert.strictEqual(info.methods[0].params.length, 2);
   assert.strictEqual(info.methods[0].params[0], 'event');
   assert.strictEqual(info.methods[0].params[1], 'data');
@@ -156,18 +144,14 @@ test('extractComponentInfo extracts multiple methods', () => {
   const ast = parseEmberComponent(code);
   const info = extractComponentInfo(ast);
 
-  // Verify three methods were extracted
   assert.strictEqual(info.methods.length, 3);
 
-  // Verify first method
   assert.strictEqual(info.methods[0].name, 'add');
   assert.deepStrictEqual(info.methods[0].params, ['a', 'b']);
 
-  // Verify second method
   assert.strictEqual(info.methods[1].name, 'subtract');
   assert.deepStrictEqual(info.methods[1].params, ['x', 'y']);
 
-  // Verify third method
   assert.strictEqual(info.methods[2].name, 'reset');
   assert.deepStrictEqual(info.methods[2].params, []);
 });

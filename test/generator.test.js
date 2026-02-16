@@ -11,16 +11,9 @@ test('generateLitComponent generates correct Lit code from minimal component str
 
   const output = generateLitComponent(info);
 
-  // Verify basic Lit imports
   assert.ok(output.includes(`import { LitElement, html } from 'lit';`));
-
-  // Should NOT include property decorator import (no properties)
   assert.ok(!output.includes(`import { property }`));
-
-  // Verify class declaration
   assert.ok(output.includes('export class MinimalComponent extends LitElement'));
-
-  // Verify render method with TODO
   assert.ok(output.includes('render()'));
   assert.ok(output.includes('<!-- TODO: Convertir template Handlebars -->'));
 });
@@ -38,15 +31,10 @@ test('generateLitComponent includes tracked properties correctly with @property 
 
   const output = generateLitComponent(info);
 
-  // Verify property decorator import is included
   assert.ok(output.includes(`import { property } from 'lit/decorators.js';`));
-
-  // Verify each property with correct decorator and initial value
   assert.ok(output.includes('@property() count = 0;'));
   assert.ok(output.includes('@property() isActive = true;'));
   assert.ok(output.includes('@property() message;'));
-
-  // Verify class name
   assert.ok(output.includes('export class CounterComponent extends LitElement'));
 });
 
@@ -100,22 +88,13 @@ test('generateLitComponent returns valid non-empty JavaScript string', () => {
 
   const output = generateLitComponent(info);
 
-  // Verify it's a string
   assert.strictEqual(typeof output, 'string');
-
-  // Verify it's not empty
   assert.ok(output.length > 0);
-
-  // Verify it contains basic JavaScript structure indicators
   assert.ok(output.includes('import'));
   assert.ok(output.includes('export'));
   assert.ok(output.includes('class'));
   assert.ok(output.includes('extends'));
-
-  // Verify string is properly formatted with newlines
   assert.ok(output.includes('\n'));
-
-  // Verify no undefined or null strings appear in output
   assert.ok(!output.includes('undefined'));
 });
 
@@ -131,10 +110,8 @@ test('generateLitComponent generates method without parameters', () => {
 
   const output = generateLitComponent(info);
 
-  // Verify method is generated
   assert.ok(output.includes('handleClick()'));
 
-  // Verify method appears before render method
   const handleClickIndex = output.indexOf('handleClick()');
   const renderIndex = output.indexOf('render()');
   assert.ok(handleClickIndex < renderIndex);
@@ -152,10 +129,7 @@ test('generateLitComponent generates method with parameters', () => {
 
   const output = generateLitComponent(info);
 
-  // Verify method is generated with correct parameters
   assert.ok(output.includes('submitForm(event, data)'));
-
-  // Verify method structure
   assert.ok(output.includes('submitForm(event, data) {'));
 });
 
@@ -173,12 +147,10 @@ test('generateLitComponent generates multiple methods', () => {
 
   const output = generateLitComponent(info);
 
-  // Verify all methods are generated
   assert.ok(output.includes('add(a, b)'));
   assert.ok(output.includes('subtract(x, y)'));
   assert.ok(output.includes('reset()'));
 
-  // Verify methods appear in order
   const addIndex = output.indexOf('add(a, b)');
   const subtractIndex = output.indexOf('subtract(x, y)');
   const resetIndex = output.indexOf('reset()');

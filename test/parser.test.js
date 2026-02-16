@@ -13,7 +13,7 @@ test('parseEmberComponent throws error on invalid JavaScript syntax', () => {
     import Component from '@glimmer/component';
 
     export default class BrokenComponent extends Component {
-      @tracked count = ;  // sintaxis inválida
+      @tracked count = ;
     }
   `;
 
