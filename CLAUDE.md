@@ -13,7 +13,7 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
 **Componentes:**
 
 - `src/parser.js` - Lee Ember, genera AST con `@babel/parser`
-- `src/extractor.js` - AST → IR neutral usando `@babel/traverse`
+- `src/extractor.js` - AST → IR neutral usando `@babel/traverse` y `@babel/generator`
 - `src/generator.js` - IR → código Lit con template strings
 - `src/writer.js` - Guarda archivos en `./output/`
 
@@ -24,8 +24,9 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
   className: string,
   trackedProperties: [{ name: string, initialValue: any }],
   imports: [{ source: string, specifiers: string[] }],
-  methods: [{ name: string, params: string[] }]
-  // Futuro: computedProperties, services
+  methods: [{ name: string, params: string[] }],
+  getters: [{ name: string, body: string }]
+  // Futuro: setters, constructor, computedProperties, actions
 }
 ```
 
@@ -40,7 +41,7 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
 ## Stack
 
 - Node.js ES modules
-- `@babel/parser`, `@babel/traverse`
+- `@babel/parser`, `@babel/traverse`, `@babel/generator`
 
 ## API Framework
 
@@ -95,9 +96,9 @@ npm run format        # Formatear con Prettier
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
 ✅ API HTTP con Fastify
 ✅ ESLint + Prettier configurados (backend y frontend)
+✅ Extracción y transpilación de getters (nombre + body)
 🔜 Extender nuestra aplicación para que transforme:
 
-- getters
 - setters
 - constructor
 - @action
@@ -225,6 +226,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 **Ejemplo real:**
+
 ```
 feat(frontend): add Lit SPA with Vite
 
