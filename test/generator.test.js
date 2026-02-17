@@ -165,12 +165,13 @@ test('generateLitComponent generates getter', () => {
     trackedProperties: [],
     imports: [],
     methods: [],
-    getters: [{ name: 'fullName' }]
+    getters: [{ name: 'fullName', body: '{\n  return this.firstName + this.lastName;\n}' }],
   };
 
   const output = generateLitComponent(info);
 
   assert.ok(output.includes('get fullName()'));
+  assert.ok(output.includes('return this.firstName + this.lastName'));
 });
 
 test('generateLitComponent generates multiple getters', () => {
@@ -180,15 +181,17 @@ test('generateLitComponent generates multiple getters', () => {
     imports: [],
     methods: [],
     getters: [
-      { name: 'fullName' },
-      { name: 'initials' }
-    ]
+      { name: 'fullName', body: '{\n  return this.first + this.last;\n}' },
+      { name: 'initials', body: '{\n  return this.first[0] + this.last[0];\n}' },
+    ],
   };
 
   const output = generateLitComponent(info);
 
   assert.ok(output.includes('get fullName()'));
+  assert.ok(output.includes('return this.first + this.last'));
   assert.ok(output.includes('get initials()'));
+  assert.ok(output.includes('return this.first[0] + this.last[0]'));
 });
 
 test('generateLitComponent maintains standard class order: properties, getters, methods, render', () => {
@@ -197,7 +200,7 @@ test('generateLitComponent maintains standard class order: properties, getters, 
     trackedProperties: [{ name: 'count', initialValue: 0 }],
     imports: [],
     methods: [{ name: 'increment', params: [] }],
-    getters: [{ name: 'doubleCount' }]
+    getters: [{ name: 'doubleCount', body: '{\n  return this.count * 2;\n}' }],
   };
 
   const output = generateLitComponent(info);

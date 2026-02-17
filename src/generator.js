@@ -82,9 +82,7 @@ function generateGetters(info) {
   }
 
   const getters = info.getters.map((getter) => {
-    return `  get ${getter.name}() {
-    // TODO: Implementar lógica del getter
-  }`;
+    return `  get ${getter.name}() ${getter.body}`;
   });
 
   return getters.join('\n\n') + '\n';
