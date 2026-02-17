@@ -64,6 +64,25 @@ npm run dev
 - ✅ Endpoint HTTP API (`POST /api/convert`)
 - ✅ Interfaz web (input/output con textareas)
 
+## Linting y Formateo
+
+ESLint 9+ (flat config) + Prettier en ambos packages.
+
+```bash
+# Backend
+npm run lint          # Ejecutar ESLint
+npm run lint:fix      # Auto-fix
+npm run format        # Formatear con Prettier
+npm run format:check  # Verificar formateo
+
+# Frontend
+cd frontend
+npm run lint
+npm run format
+```
+
+**Plugins:** `eslint-plugin-jsdoc` (backend), `eslint-plugin-lit` (frontend), `eslint-config-prettier` (ambos).
+
 ## Fuera de Scope
 
 Servicios, observers, mixins, modifiers complejos, routing, templates Handlebars (planeado).

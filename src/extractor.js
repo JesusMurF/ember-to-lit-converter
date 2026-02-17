@@ -4,7 +4,6 @@ import traverse from '@babel/traverse';
 /**
  * Extracts component information from a Babel AST into an Intermediate Representation (IR).
  * Traverses the AST to extract class name, tracked properties, imports, methods, and getters.
- *
  * @param {object} ast - Babel AST of an Ember component
  * @returns {object} IR object containing className, trackedProperties, imports, methods, and getters
  */

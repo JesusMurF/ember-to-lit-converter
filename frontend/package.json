@@ -5,12 +5,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
     "lit": "^3.1.0"
   },
   "devDependencies": {
+    "eslint": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-lit": "^2.2.1",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
     "vite": "^5.0.0"
   }
 }

@@ -10,14 +10,17 @@ export class AppRoot extends LitElement {
     emberCode: { type: String },
     litCode: { type: String },
     isLoading: { type: Boolean },
-    error: { type: String }
+    error: { type: String },
   };
 
   static styles = css`
     :host {
       display: block;
       padding: 2rem;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -56,14 +59,14 @@ export class AppRoot extends LitElement {
     }
 
     textarea:focus {
-      outline: 2px solid #4CAF50;
+      outline: 2px solid #4caf50;
       border-color: transparent;
     }
 
     button {
       margin-top: 1rem;
       padding: 0.75rem 1.5rem;
-      background: #4CAF50;
+      background: #4caf50;
       color: white;
       border: none;
       border-radius: 4px;
@@ -160,10 +163,7 @@ export class AppRoot extends LitElement {
             .value=${this.emberCode}
             @input=${this.handleInput}
           ></textarea>
-          <button
-            @click=${this.convertCode}
-            ?disabled=${this.isLoading}
-          >
+          <button @click=${this.convertCode} ?disabled=${this.isLoading}>
             ${this.isLoading ? 'Converting...' : 'Convert to Lit'}
           </button>
           ${this.error ? html`<div class="error">${this.error}</div>` : ''}

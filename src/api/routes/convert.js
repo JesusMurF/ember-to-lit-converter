@@ -9,7 +9,6 @@ import {
 
 /**
  * Registers the POST /api/convert route for Ember to Lit component conversion.
- *
  * @param {import('fastify').FastifyInstance} fastify - The Fastify application instance
  * @returns {Promise<void>}
  */
@@ -30,13 +29,10 @@ export async function convertRoutes(fastify) {
      * 1. Parse: Converts Ember JavaScript code to an Abstract Syntax Tree (AST)
      * 2. Extract: Transforms AST to framework-neutral Intermediate Representation (IR)
      * 3. Generate: Produces Lit component code from IR
-     *
      * @async
      * @param {object} request - Fastify request object with body.code containing Ember component code
      * @param {object} reply - Fastify reply object
-     *
      * @returns {Promise<{litCode: string}>} Success response with generated Lit component code
-     *
      * @throws {Error} Returns 400 status with error details when input code has invalid JavaScript syntax
      * @throws {Error} Returns 500 status with error details for unexpected conversion errors
      */
