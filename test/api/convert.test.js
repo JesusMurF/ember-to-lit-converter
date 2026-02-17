@@ -16,8 +16,8 @@ test('POST /api/convert returns Lit component for valid Ember code', async () =>
         export default class TestComponent extends Component {
           @tracked count = 0;
         }
-      `
-    }
+      `,
+    },
   });
 
   assert.strictEqual(response.statusCode, 200);
@@ -43,8 +43,8 @@ test('POST /api/convert returns 400 for invalid JavaScript syntax', async () => 
         export default class BrokenComponent extends Component {
           @tracked count = ;
         }
-      `
-    }
+      `,
+    },
   });
 
   assert.strictEqual(response.statusCode, 400);
@@ -62,7 +62,7 @@ test('POST /api/convert returns 400 when code is missing', async () => {
   const response = await server.inject({
     method: 'POST',
     url: '/api/convert',
-    payload: {}
+    payload: {},
   });
 
   assert.strictEqual(response.statusCode, 400);
@@ -79,8 +79,8 @@ test('POST /api/convert returns 400 when code exceeds max length', async () => {
     method: 'POST',
     url: '/api/convert',
     payload: {
-      code: largeCode
-    }
+      code: largeCode,
+    },
   });
 
   assert.strictEqual(response.statusCode, 400);
@@ -103,8 +103,8 @@ test('POST /api/convert handles component with methods', async () => {
             console.log('clicked');
           }
         }
-      `
-    }
+      `,
+    },
   });
 
   assert.strictEqual(response.statusCode, 200);
