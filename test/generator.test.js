@@ -6,14 +6,16 @@ test('generateLitComponent generates correct Lit code from minimal component str
   const info = {
     className: 'MinimalComponent',
     trackedProperties: [],
-    imports: []
+    imports: [],
   };
 
   const output = generateLitComponent(info);
 
   assert.ok(output.includes(`import { LitElement, html } from 'lit';`));
   assert.ok(!output.includes(`import { property }`));
-  assert.ok(output.includes('export class MinimalComponent extends LitElement'));
+  assert.ok(
+    output.includes('export class MinimalComponent extends LitElement'),
+  );
   assert.ok(output.includes('render()'));
   assert.ok(output.includes('<!-- TODO: Convertir template Handlebars -->'));
 });
@@ -24,9 +26,9 @@ test('generateLitComponent includes tracked properties correctly with @property 
     trackedProperties: [
       { name: 'count', initialValue: 0 },
       { name: 'isActive', initialValue: true },
-      { name: 'message', initialValue: null }
+      { name: 'message', initialValue: null },
     ],
-    imports: []
+    imports: [],
   };
 
   const output = generateLitComponent(info);
@@ -35,7 +37,9 @@ test('generateLitComponent includes tracked properties correctly with @property 
   assert.ok(output.includes('@property() count = 0;'));
   assert.ok(output.includes('@property() isActive = true;'));
   assert.ok(output.includes('@property() message;'));
-  assert.ok(output.includes('export class CounterComponent extends LitElement'));
+  assert.ok(
+    output.includes('export class CounterComponent extends LitElement'),
+  );
 });
 
 test('generateLitComponent handles empty or incomplete input correctly', () => {
@@ -43,7 +47,7 @@ test('generateLitComponent handles empty or incomplete input correctly', () => {
   const infoNullClass = {
     className: null,
     trackedProperties: [],
-    imports: []
+    imports: [],
   };
 
   const outputNull = generateLitComponent(infoNullClass);
@@ -56,13 +60,15 @@ test('generateLitComponent handles empty or incomplete input correctly', () => {
   const infoEmpty = {
     className: 'EmptyComponent',
     trackedProperties: [],
-    imports: []
+    imports: [],
   };
 
   const outputEmpty = generateLitComponent(infoEmpty);
 
   // Should generate valid component without property decorator import
-  assert.ok(outputEmpty.includes('export class EmptyComponent extends LitElement'));
+  assert.ok(
+    outputEmpty.includes('export class EmptyComponent extends LitElement'),
+  );
   assert.ok(!outputEmpty.includes('import { property }'));
   assert.ok(outputEmpty.includes('render()'));
 
@@ -70,7 +76,7 @@ test('generateLitComponent handles empty or incomplete input correctly', () => {
   const infoSingle = {
     className: 'SinglePropComponent',
     trackedProperties: [{ name: 'value', initialValue: 42 }],
-    imports: []
+    imports: [],
   };
 
   const outputSingle = generateLitComponent(infoSingle);
@@ -83,7 +89,7 @@ test('generateLitComponent returns valid non-empty JavaScript string', () => {
   const info = {
     className: 'TestComponent',
     trackedProperties: [{ name: 'data', initialValue: 'test' }],
-    imports: []
+    imports: [],
   };
 
   const output = generateLitComponent(info);
@@ -103,9 +109,7 @@ test('generateLitComponent generates method without parameters', () => {
     className: 'ButtonComponent',
     trackedProperties: [],
     imports: [],
-    methods: [
-      { name: 'handleClick', params: [] }
-    ]
+    methods: [{ name: 'handleClick', params: [] }],
   };
 
   const output = generateLitComponent(info);
@@ -122,9 +126,7 @@ test('generateLitComponent generates method with parameters', () => {
     className: 'FormComponent',
     trackedProperties: [],
     imports: [],
-    methods: [
-      { name: 'submitForm', params: ['event', 'data'] }
-    ]
+    methods: [{ name: 'submitForm', params: ['event', 'data'] }],
   };
 
   const output = generateLitComponent(info);
@@ -141,8 +143,8 @@ test('generateLitComponent generates multiple methods', () => {
     methods: [
       { name: 'add', params: ['a', 'b'] },
       { name: 'subtract', params: ['x', 'y'] },
-      { name: 'reset', params: [] }
-    ]
+      { name: 'reset', params: [] },
+    ],
   };
 
   const output = generateLitComponent(info);
@@ -165,7 +167,7 @@ test('generateLitComponent generates getter', () => {
     trackedProperties: [],
     imports: [],
     methods: [],
-    getters: [{ name: 'fullName' }]
+    getters: [{ name: 'fullName' }],
   };
 
   const output = generateLitComponent(info);
@@ -179,10 +181,7 @@ test('generateLitComponent generates multiple getters', () => {
     trackedProperties: [],
     imports: [],
     methods: [],
-    getters: [
-      { name: 'fullName' },
-      { name: 'initials' }
-    ]
+    getters: [{ name: 'fullName' }, { name: 'initials' }],
   };
 
   const output = generateLitComponent(info);
@@ -197,7 +196,7 @@ test('generateLitComponent maintains standard class order: properties, getters, 
     trackedProperties: [{ name: 'count', initialValue: 0 }],
     imports: [],
     methods: [{ name: 'increment', params: [] }],
-    getters: [{ name: 'doubleCount' }]
+    getters: [{ name: 'doubleCount' }],
   };
 
   const output = generateLitComponent(info);
@@ -215,7 +214,10 @@ test('generateLitComponent maintains standard class order: properties, getters, 
   assert.ok(renderIndex > -1, 'render should be present');
 
   // Verify correct order: properties < getters < methods < render
-  assert.ok(propertyIndex < getterIndex, 'properties should come before getters');
+  assert.ok(
+    propertyIndex < getterIndex,
+    'properties should come before getters',
+  );
   assert.ok(getterIndex < methodIndex, 'getters should come before methods');
   assert.ok(methodIndex < renderIndex, 'methods should come before render');
 });

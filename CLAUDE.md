@@ -57,11 +57,44 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
 **Fuera de scope inicial:**
 Servicios, observers, mixins, modifiers complejos, routing
 
+## Linting y Formateo
+
+**ESLint 9+ (flat config)** + **Prettier** configurados en ambos packages.
+
+**Configuración:**
+
+- `eslint.config.js` — Flat config con `eslint-config-prettier` al final (evita conflictos)
+- `.prettierrc` — Single quotes, trailing commas, semicolons, 2 espacios, 80 chars
+- `.prettierignore` — Excluye `node_modules/`, `output/`, `dist/`, `frontend/`
+
+**Plugins:**
+
+- **Backend:** `eslint-plugin-jsdoc` (enforces JSDoc conventions)
+- **Frontend:** `eslint-plugin-lit` (Lit-specific rules)
+
+**Comandos:**
+
+```bash
+# Backend (root)
+npm run lint          # Ejecutar ESLint
+npm run lint:fix      # Auto-fix ESLint
+npm run format        # Formatear con Prettier
+npm run format:check  # Verificar formateo
+
+# Frontend
+cd frontend
+npm run lint          # Ejecutar ESLint
+npm run format        # Formatear con Prettier
+```
+
+**Regla importante:** `eslint-config-prettier` siempre debe ir al final del array en `eslint.config.js` para que Prettier tenga prioridad sobre reglas de formateo.
+
 ## Estado Actual
 
 ✅ Parser, Extractor, Generator, Writer funcionando
 ✅ Hemos seleccionado la libreria interna de Node.js para realizar test unitarios
 ✅ API HTTP con Fastify
+✅ ESLint + Prettier configurados (backend y frontend)
 🔜 Extender nuestra aplicación para que transforme:
 
 - getters

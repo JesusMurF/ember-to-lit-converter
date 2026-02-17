@@ -1,7 +1,6 @@
 /**
  * Generates Lit component code from the Intermediate Representation (IR).
  * Creates imports, class declaration, properties, methods, getters, and render method.
- *
  * @param {object} info - IR object containing component structure
  * @returns {string} Complete Lit component code as a string
  */
@@ -14,7 +13,6 @@ export function generateLitComponent(info) {
 
 /**
  * Generates import statements for the Lit component.
- *
  * @param {object} info - IR object containing component structure
  * @returns {string} Import statements as a string
  */
@@ -32,7 +30,6 @@ function generateImports(info) {
 
 /**
  * Generates the complete Lit class declaration.
- *
  * @param {object} info - IR object containing component structure
  * @returns {string} Class declaration with all members
  */
@@ -52,8 +49,7 @@ function generateClass(info) {
 }
 
 /**
- * Generates property declarations with @property decorators.
- *
+ * Generates property declarations with `@property` decorators.
  * @param {object} info - IR object containing trackedProperties
  * @returns {string} Property declarations or empty string
  */
@@ -72,7 +68,6 @@ function generateProperties(info) {
 
 /**
  * Generates getter method declarations.
- *
  * @param {object} info - IR object containing getters
  * @returns {string} Getter declarations or empty string
  */
@@ -92,7 +87,6 @@ function generateGetters(info) {
 
 /**
  * Generates method declarations.
- *
  * @param {object} info - IR object containing methods
  * @returns {string} Method declarations or empty string
  */
@@ -113,7 +107,6 @@ function generateMethods(info) {
 
 /**
  * Generates the render method declaration.
- *
  * @returns {string} Render method declaration
  */
 function generateRenderMethod() {

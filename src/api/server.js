@@ -4,20 +4,19 @@ import { convertRoutes } from './routes/convert.js';
 
 /**
  * Builds and configures a Fastify server instance with CORS and conversion routes.
- *
  * @param {object} options - Server configuration options
- * @param {string} [options.logLevel='info'] - Logging level for Pino logger
+ * @param {string} [options.logLevel] - Logging level for Pino logger
  * @returns {import('fastify').FastifyInstance} Configured Fastify server instance
  */
 export function buildServer(options = {}) {
   const fastify = Fastify({
     logger: {
-      level: options.logLevel || 'info'
-    }
+      level: options.logLevel || 'info',
+    },
   });
 
   fastify.register(cors, {
-    origin: true
+    origin: true,
   });
 
   fastify.register(convertRoutes);
@@ -27,12 +26,11 @@ export function buildServer(options = {}) {
 
 /**
  * Starts the Fastify server and begins listening for requests.
- *
  * @async
  * @param {object} options - Server startup options
- * @param {number} [options.port=3000] - Port number to listen on
- * @param {string} [options.host='0.0.0.0'] - Host address to bind to
- * @param {string} [options.logLevel='info'] - Logging level passed to buildServer
+ * @param {number} [options.port] - Port number to listen on
+ * @param {string} [options.host] - Host address to bind to
+ * @param {string} [options.logLevel] - Logging level passed to buildServer
  * @returns {Promise<import('fastify').FastifyInstance>} Running Fastify server instance
  * @throws {Error} Exits process with code 1 if server fails to start
  */
