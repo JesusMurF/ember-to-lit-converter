@@ -1,3 +1,4 @@
+import generate from '@babel/generator';
 import traverse from '@babel/traverse';
 
 /**
@@ -61,9 +62,11 @@ export function extractComponentInfo(ast) {
         });
       } else if (path.node.kind === 'get') {
         const getterName = path.node.key.name;
+        const body = generate.default(path.node.body).code;
 
         info.getters.push({
           name: getterName,
+          body,
         });
       }
     },

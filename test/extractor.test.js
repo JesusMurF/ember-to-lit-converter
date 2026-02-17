@@ -173,6 +173,7 @@ test('extractComponentInfo extracts getter', () => {
   assert.ok(Array.isArray(info.getters));
   assert.strictEqual(info.getters.length, 1);
   assert.strictEqual(info.getters[0].name, 'fullName');
+  assert.ok(info.getters[0].body.includes("return this.firstName + ' ' + this.lastName"));
 });
 
 test('extractComponentInfo extracts multiple getters', () => {
@@ -195,7 +196,9 @@ test('extractComponentInfo extracts multiple getters', () => {
 
   assert.strictEqual(info.getters.length, 2);
   assert.strictEqual(info.getters[0].name, 'fullName');
+  assert.ok(info.getters[0].body.includes("return this.firstName + ' ' + this.lastName"));
   assert.strictEqual(info.getters[1].name, 'initials');
+  assert.ok(info.getters[1].body.includes('return this.firstName[0] + this.lastName[0]'));
 });
 
 test('extractComponentInfo handles getters and methods together', () => {
@@ -218,6 +221,7 @@ test('extractComponentInfo handles getters and methods together', () => {
 
   assert.strictEqual(info.getters.length, 1);
   assert.strictEqual(info.getters[0].name, 'total');
+  assert.ok(info.getters[0].body.includes('return this.items.length'));
 
   assert.strictEqual(info.methods.length, 1);
   assert.strictEqual(info.methods[0].name, 'handleClick');
