@@ -181,6 +181,23 @@ export async function handler(request, reply) {
 - `docs(readme): update architecture diagram`
 - `chore: install vitest as test runner`
 
+**Formato de Commits:**
+
+Los commits deben tener una descripción concisa en una sola línea, seguida del Co-Authored-By:
+
+```
+<tipo>(<alcance>): <descripción>
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+**Ejemplo real:**
+```
+feat(frontend): add Lit SPA with Vite
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
 **Flujo de Trabajo (Git)**
 
 - **Rama principal:** `main` (siempre estable).
