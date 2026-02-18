@@ -24,7 +24,7 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
   className: string,
   trackedProperties: [{ name: string, initialValue: any }],
   imports: [{ source: string, specifiers: string[] }],
-  methods: [{ name: string, params: string[] }],
+  methods: [{ name: string, params: string[], body: string }],
   getters: [{ name: string, body: string }]
   // Futuro: setters, constructor, computedProperties, actions
 }
@@ -97,6 +97,7 @@ npm run format        # Formatear con Prettier
 ✅ API HTTP con Fastify
 ✅ ESLint + Prettier configurados (backend y frontend)
 ✅ Extracción y transpilación de getters (nombre + body)
+✅ Extracción del body de métodos usando `@babel/generator`
 🔜 Extender nuestra aplicación para que transforme:
 
 - setters
@@ -189,7 +190,7 @@ export async function handler(request, reply) {
 
 **Convención:** [Conventional Commits](https://www.conventionalcommits.org/)
 
-**Formato:** `<tipo>(<alcance>): <descripción en 1 linea como máximo de 72 carácteres>`
+**Formato:** `<tipo>(<alcance>): <descripción en 1 linea como máximo de 120 carácteres>`
 
 **Tipos permitidos:**
 
