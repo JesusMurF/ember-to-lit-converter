@@ -206,6 +206,75 @@ test('extractComponentInfo extracts multiple getters', () => {
   assert.ok(info.getters[1].body.includes('return this.firstName[0] + this.lastName[0]'));
 });
 
+test('extractComponentInfo extracts constructor without parameters', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class MyComponent extends Component {
+      constructor() {
+        super();
+        this.name = 'default';
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.ok(info.classConstructor !== null);
+  assert.ok(Array.isArray(info.classConstructor.params));
+  assert.strictEqual(info.classConstructor.params.length, 0);
+  assert.ok(info.classConstructor.body.includes('super()'));
+  assert.ok(info.classConstructor.body.includes("this.name = 'default'"));
+});
+
+test('extractComponentInfo extracts constructor with parameters', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class MyComponent extends Component {
+      constructor(owner, args) {
+        super(owner, args);
+        this.value = args.value;
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.ok(info.classConstructor !== null);
+  assert.strictEqual(info.classConstructor.params.length, 2);
+  assert.strictEqual(info.classConstructor.params[0], 'owner');
+  assert.strictEqual(info.classConstructor.params[1], 'args');
+  assert.ok(info.classConstructor.body.includes('super(owner, args)'));
+  assert.ok(info.classConstructor.body.includes('this.value = args.value'));
+});
+
+test('extractComponentInfo constructor does not interfere with methods', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class MyComponent extends Component {
+      constructor(owner, args) {
+        super(owner, args);
+      }
+
+      handleClick() {
+        console.log('clicked');
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.ok(info.classConstructor !== null);
+  assert.strictEqual(info.classConstructor.params.length, 2);
+  assert.strictEqual(info.methods.length, 1);
+  assert.strictEqual(info.methods[0].name, 'handleClick');
+});
+
 test('extractComponentInfo handles getters and methods together', () => {
   const code = `
     import Component from '@glimmer/component';
