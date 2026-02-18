@@ -36,16 +36,30 @@ function generateImports(info) {
 function generateClass(info) {
   const className = info.className;
   const properties = generateProperties(info);
+  const constructor = generateConstructor(info);
   const getters = generateGetters(info);
   const methods = generateMethods(info);
   const renderMethod = generateRenderMethod();
 
   return `export class ${className} extends LitElement {
     ${properties}
+    ${constructor}
     ${getters}
     ${methods}
     ${renderMethod}
     }`;
+}
+
+/**
+ * Generates the constructor declaration.
+ * @param {object} info - IR object containing constructor
+ * @returns {string} Constructor declaration or empty string
+ */
+function generateConstructor(info) {
+  // 'classConstructor' avoids collision with Object.prototype.constructor
+  if (!info.classConstructor) return '';
+  const params = info.classConstructor.params.join(', ');
+  return `  constructor(${params}) ${info.classConstructor.body}\n`;
 }
 
 /**

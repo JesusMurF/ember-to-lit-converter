@@ -198,6 +198,60 @@ test('generateLitComponent generates multiple getters', () => {
   assert.ok(output.includes('return this.first[0] + this.last[0]'));
 });
 
+test('generateLitComponent generates constructor without parameters', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [],
+    classConstructor: { params: [], body: '{\n  super();\n  this.name = \'default\';\n}' },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('constructor()'));
+  assert.ok(output.includes('super()'));
+  assert.ok(output.includes("this.name = 'default'"));
+});
+
+test('generateLitComponent generates constructor with parameters', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [],
+    classConstructor: { params: ['owner', 'args'], body: '{\n  super(owner, args);\n  this.value = args.value;\n}' },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('constructor(owner, args)'));
+  assert.ok(output.includes('super(owner, args)'));
+  assert.ok(output.includes('this.value = args.value'));
+});
+
+test('generateLitComponent constructor appears after properties in output', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [{ name: 'count', initialValue: 0 }],
+    imports: [],
+    methods: [],
+    getters: [],
+    classConstructor: { params: ['owner', 'args'], body: '{\n  super(owner, args);\n}' },
+  };
+
+  const output = generateLitComponent(info);
+
+  const propertyIndex = output.indexOf('@property() count');
+  const constructorIndex = output.indexOf('constructor(owner, args)');
+
+  assert.ok(propertyIndex > -1, 'property should be present');
+  assert.ok(constructorIndex > -1, 'constructor should be present');
+  assert.ok(propertyIndex < constructorIndex, 'properties should come before constructor');
+});
+
 test('generateLitComponent maintains standard class order: properties, getters, methods, render', () => {
   const info = {
     className: 'CompleteComponent',

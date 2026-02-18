@@ -25,8 +25,9 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
   trackedProperties: [{ name: string, initialValue: any }],
   imports: [{ source: string, specifiers: string[] }],
   methods: [{ name: string, params: string[], body: string }],
-  getters: [{ name: string, body: string }]
-  // Futuro: setters, constructor, computedProperties, actions
+  getters: [{ name: string, body: string }],
+  classConstructor: { params: string[], body: string } | null
+  // Futuro: setters, @action, @computed
 }
 ```
 
@@ -98,10 +99,10 @@ npm run format        # Formatear con Prettier
 ✅ ESLint + Prettier configurados (backend y frontend)
 ✅ Extracción y transpilación de getters (nombre + body)
 ✅ Extracción del body de métodos usando `@babel/generator`
+✅ Extracción y generación del constructor de clase
 🔜 Extender nuestra aplicación para que transforme:
 
 - setters
-- constructor
 - @action
 - @computed
 
