@@ -98,6 +98,7 @@ test('extractComponentInfo extracts method without parameters', () => {
   assert.strictEqual(info.methods[0].name, 'handleClick');
   assert.ok(Array.isArray(info.methods[0].params));
   assert.strictEqual(info.methods[0].params.length, 0);
+  assert.ok(info.methods[0].body.includes("console.log('clicked')"));
 });
 
 test('extractComponentInfo extracts method with parameters', () => {
@@ -120,6 +121,7 @@ test('extractComponentInfo extracts method with parameters', () => {
   assert.strictEqual(info.methods[0].params.length, 2);
   assert.strictEqual(info.methods[0].params[0], 'event');
   assert.strictEqual(info.methods[0].params[1], 'data');
+  assert.ok(info.methods[0].body.includes('event.preventDefault()'));
 });
 
 test('extractComponentInfo extracts multiple methods', () => {
@@ -148,12 +150,15 @@ test('extractComponentInfo extracts multiple methods', () => {
 
   assert.strictEqual(info.methods[0].name, 'add');
   assert.deepStrictEqual(info.methods[0].params, ['a', 'b']);
+  assert.ok(info.methods[0].body.includes('return a + b'));
 
   assert.strictEqual(info.methods[1].name, 'subtract');
   assert.deepStrictEqual(info.methods[1].params, ['x', 'y']);
+  assert.ok(info.methods[1].body.includes('return x - y'));
 
   assert.strictEqual(info.methods[2].name, 'reset');
   assert.deepStrictEqual(info.methods[2].params, []);
+  assert.ok(info.methods[2].body.includes('this.result = 0'));
 });
 
 test('extractComponentInfo extracts getter', () => {
@@ -225,4 +230,5 @@ test('extractComponentInfo handles getters and methods together', () => {
 
   assert.strictEqual(info.methods.length, 1);
   assert.strictEqual(info.methods[0].name, 'handleClick');
+  assert.ok(info.methods[0].body.includes("console.log('clicked')"));
 });

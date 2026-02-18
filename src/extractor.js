@@ -59,6 +59,7 @@ export function extractComponentInfo(ast) {
         info.methods.push({
           name: methodName,
           params: paramNames,
+          body: generate.default(path.node.body).code,
         });
       } else if (path.node.kind === 'get') {
         const getterName = path.node.key.name;

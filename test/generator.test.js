@@ -109,12 +109,13 @@ test('generateLitComponent generates method without parameters', () => {
     className: 'ButtonComponent',
     trackedProperties: [],
     imports: [],
-    methods: [{ name: 'handleClick', params: [] }],
+    methods: [{ name: 'handleClick', params: [], body: "{\n  console.log('clicked');\n}" }],
   };
 
   const output = generateLitComponent(info);
 
   assert.ok(output.includes('handleClick()'));
+  assert.ok(output.includes("console.log('clicked')"));
 
   const handleClickIndex = output.indexOf('handleClick()');
   const renderIndex = output.indexOf('render()');
@@ -126,13 +127,14 @@ test('generateLitComponent generates method with parameters', () => {
     className: 'FormComponent',
     trackedProperties: [],
     imports: [],
-    methods: [{ name: 'submitForm', params: ['event', 'data'] }],
+    methods: [{ name: 'submitForm', params: ['event', 'data'], body: '{\n  event.preventDefault();\n  console.log(data);\n}' }],
   };
 
   const output = generateLitComponent(info);
 
   assert.ok(output.includes('submitForm(event, data)'));
   assert.ok(output.includes('submitForm(event, data) {'));
+  assert.ok(output.includes('event.preventDefault()'));
 });
 
 test('generateLitComponent generates multiple methods', () => {
@@ -141,9 +143,9 @@ test('generateLitComponent generates multiple methods', () => {
     trackedProperties: [],
     imports: [],
     methods: [
-      { name: 'add', params: ['a', 'b'] },
-      { name: 'subtract', params: ['x', 'y'] },
-      { name: 'reset', params: [] },
+      { name: 'add', params: ['a', 'b'], body: '{\n  return a + b;\n}' },
+      { name: 'subtract', params: ['x', 'y'], body: '{\n  return x - y;\n}' },
+      { name: 'reset', params: [], body: '{\n  this.result = 0;\n}' },
     ],
   };
 
@@ -201,7 +203,7 @@ test('generateLitComponent maintains standard class order: properties, getters, 
     className: 'CompleteComponent',
     trackedProperties: [{ name: 'count', initialValue: 0 }],
     imports: [],
-    methods: [{ name: 'increment', params: [] }],
+    methods: [{ name: 'increment', params: [], body: '{\n  this.count++;\n}' }],
     getters: [{ name: 'doubleCount', body: '{\n  return this.count * 2;\n}' }],
   };
 
