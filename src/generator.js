@@ -95,9 +95,7 @@ function generateMethods(info) {
 
   const methods = info.methods.map((method) => {
     const params = method.params.join(', ');
-    return `  ${method.name}(${params}) {
-    // TODO: Implementar lógica del método
-  }`;
+    return `  ${method.name}(${params}) ${method.body}`;
   });
 
   return methods.join('\n\n') + '\n';
