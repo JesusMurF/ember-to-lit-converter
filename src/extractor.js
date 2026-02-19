@@ -5,7 +5,7 @@ import traverse from '@babel/traverse';
  * Extracts component information from a Babel AST into an Intermediate Representation (IR).
  * Traverses the AST to extract class name, tracked properties, imports, methods, and getters.
  * @param {object} ast - Babel AST of an Ember component
- * @returns {object} IR object containing className, trackedProperties, imports, methods, getters, classConstructor. Methods include an isAction flag.
+ * @returns {object} IR object containing className, trackedProperties, imports, methods, getters, setters, classConstructor. Methods include an isAction flag.
  */
 export function extractComponentInfo(ast) {
   const info = {
@@ -14,6 +14,7 @@ export function extractComponentInfo(ast) {
     imports: [],
     methods: [],
     getters: [],
+    setters: [],
     classConstructor: null,
   };
 
@@ -73,6 +74,12 @@ export function extractComponentInfo(ast) {
         info.getters.push({
           name: getterName,
           body,
+        });
+      } else if (path.node.kind === 'set') {
+        info.setters.push({
+          name: path.node.key.name,
+          param: path.node.params[0].name,
+          body: generate.default(path.node.body).code,
         });
       } else if (path.node.kind === 'constructor') {
         const paramNames = path.node.params.map((param) => param.name);

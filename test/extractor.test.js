@@ -348,6 +348,79 @@ test('extractComponentInfo correctly flags only @action methods in a mixed compo
   assert.strictEqual(info.methods[2].isAction, true);
 });
 
+test('extractComponentInfo extracts setter', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class UserComponent extends Component {
+      set fullName(value) {
+        this._fullName = value;
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.ok(Array.isArray(info.setters));
+  assert.strictEqual(info.setters.length, 1);
+  assert.strictEqual(info.setters[0].name, 'fullName');
+  assert.strictEqual(info.setters[0].param, 'value');
+  assert.ok(info.setters[0].body.includes('this._fullName = value'));
+});
+
+test('extractComponentInfo extracts multiple setters', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class PersonComponent extends Component {
+      set firstName(value) {
+        this._firstName = value;
+      }
+
+      set lastName(value) {
+        this._lastName = value;
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.setters.length, 2);
+  assert.strictEqual(info.setters[0].name, 'firstName');
+  assert.strictEqual(info.setters[0].param, 'value');
+  assert.ok(info.setters[0].body.includes('this._firstName = value'));
+  assert.strictEqual(info.setters[1].name, 'lastName');
+  assert.strictEqual(info.setters[1].param, 'value');
+  assert.ok(info.setters[1].body.includes('this._lastName = value'));
+});
+
+test('extractComponentInfo extracts getter and setter with the same name', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class UserComponent extends Component {
+      get name() {
+        return this._name;
+      }
+
+      set name(value) {
+        this._name = value.trim();
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.getters.length, 1);
+  assert.strictEqual(info.getters[0].name, 'name');
+  assert.strictEqual(info.setters.length, 1);
+  assert.strictEqual(info.setters[0].name, 'name');
+  assert.ok(info.setters[0].body.includes('this._name = value.trim()'));
+});
+
 test('extractComponentInfo handles getters and methods together', () => {
   const code = `
     import Component from '@glimmer/component';
