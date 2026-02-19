@@ -50,7 +50,7 @@ export class AppRoot extends LitElement {
     this.litCode = '';
 
     try {
-      const response = await fetch('http://localhost:3000/api/convert', {
+      const response = await fetch(import.meta.env.VITE_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
