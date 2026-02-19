@@ -73,6 +73,35 @@ Definen utilidades Tailwind semánticas reutilizables. Añadir un token aquí lo
 --font-geist-mono: 'Geist Mono'   → font-geist-mono
 ```
 
+**Propuesta futura: transformación de templates Handlebars**
+
+La transformación completa de un componente Ember requiere procesar también el `.hbs`. La arquitectura propuesta añade un pipeline paralelo que converge en el IR:
+
+```
+Ember JS  → parser.js     → extractor.js     → ─────────────────────┐
+                                                                       ├→ IR → generator.js → Lit
+Ember HBS → hbs-parser.js → hbs-extractor.js → ─────────────────────┘
+```
+
+- **Parser HBS:** `@glimmer/syntax` (parser oficial de Ember/Glimmer)
+- **IR:** añadir campo `template: { nodes: [...] } | null`
+- **Generator:** usar `ir.template` para generar el `render()` en lugar del TODO actual
+
+Transformaciones automáticas previstas:
+
+| Handlebars | Lit |
+|---|---|
+| `{{this.prop}}` | `${this.prop}` |
+| `{{#if cond}}...{{/if}}` | `${cond ? html\`...\` : ''}` |
+| `{{#each items as \|item\|}}` | `${items.map(item => html\`...\`)}` |
+| `{{on "click" this.handler}}` | `@click=${this.handler}` |
+
+Helpers complejos, componentes anidados y modifiers avanzados generarán TODOs.
+
+**Propuesta futura: UI con tabs JS/HBS**
+
+El panel de entrada del frontend evolucionará a dos pestañas (JS y HBS) para permitir convertir el componente completo. El panel de salida (Lit) no cambia.
+
 ## API Framework
 
 **Fastify** fue seleccionado para la capa HTTP:
@@ -137,7 +166,8 @@ npm run format        # Formatear con Prettier
 
 - @computed
 
-  🔜 parsear templates Handlebars
+🔜 Parsear y transformar templates Handlebars (`.hbs`) a `html\`\`` de Lit
+🔜 UI del frontend: panel de entrada con tabs JS/HBS para convertir componentes completos
 
 ## Comandos
 
