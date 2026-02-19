@@ -303,6 +303,65 @@ test('generateLitComponent generates mixed @action and regular methods correctly
   assert.ok(output.includes('reset = () =>'), 'reset should be arrow function');
 });
 
+test('generateLitComponent generates setter', () => {
+  const info = {
+    className: 'UserComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [{ name: 'fullName', param: 'value', body: '{\n  this._fullName = value;\n}' }],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('set fullName(value)'));
+  assert.ok(output.includes('this._fullName = value'));
+});
+
+test('generateLitComponent generates multiple setters', () => {
+  const info = {
+    className: 'PersonComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [
+      { name: 'firstName', param: 'value', body: '{\n  this._firstName = value;\n}' },
+      { name: 'lastName', param: 'value', body: '{\n  this._lastName = value;\n}' },
+    ],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('set firstName(value)'));
+  assert.ok(output.includes('this._firstName = value'));
+  assert.ok(output.includes('set lastName(value)'));
+  assert.ok(output.includes('this._lastName = value'));
+});
+
+test('generateLitComponent generates getter and setter with the same name', () => {
+  const info = {
+    className: 'UserComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [],
+    getters: [{ name: 'name', body: '{\n  return this._name;\n}' }],
+    setters: [{ name: 'name', param: 'value', body: '{\n  this._name = value.trim();\n}' }],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('get name()'));
+  assert.ok(output.includes('return this._name'));
+  assert.ok(output.includes('set name(value)'));
+  assert.ok(output.includes('this._name = value.trim()'));
+
+  const getterIndex = output.indexOf('get name()');
+  const setterIndex = output.indexOf('set name(value)');
+  assert.ok(getterIndex < setterIndex, 'getter should appear before setter');
+});
+
 test('generateLitComponent maintains standard class order: properties, getters, methods, render', () => {
   const info = {
     className: 'CompleteComponent',

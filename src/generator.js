@@ -1,6 +1,6 @@
 /**
  * Generates Lit component code from the Intermediate Representation (IR).
- * Creates imports, class declaration, properties, methods, getters, and render method.
+ * Creates imports, class declaration, properties, methods, getters, setters, and render method.
  * @param {object} info - IR object containing component structure
  * @returns {string} Complete Lit component code as a string
  */
@@ -38,6 +38,7 @@ function generateClass(info) {
   const properties = generateProperties(info);
   const constructor = generateConstructor(info);
   const getters = generateGetters(info);
+  const setters = generateSetters(info);
   const methods = generateMethods(info);
   const renderMethod = generateRenderMethod();
 
@@ -45,6 +46,7 @@ function generateClass(info) {
     ${properties}
     ${constructor}
     ${getters}
+    ${setters}
     ${methods}
     ${renderMethod}
     }`;
@@ -95,6 +97,23 @@ function generateGetters(info) {
   });
 
   return getters.join('\n\n') + '\n';
+}
+
+/**
+ * Generates setter method declarations.
+ * @param {object} info - IR object containing setters
+ * @returns {string} Setter declarations or empty string
+ */
+function generateSetters(info) {
+  if (!info.setters || info.setters.length === 0) {
+    return '';
+  }
+
+  const setters = info.setters.map((setter) => {
+    return `  set ${setter.name}(${setter.param}) ${setter.body}`;
+  });
+
+  return setters.join('\n\n') + '\n';
 }
 
 /**

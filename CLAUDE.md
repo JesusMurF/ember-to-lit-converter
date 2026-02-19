@@ -26,8 +26,9 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
   imports: [{ source: string, specifiers: string[] }],
   methods: [{ name: string, params: string[], body: string, isAction: boolean }],
   getters: [{ name: string, body: string }],
+  setters: [{ name: string, param: string, body: string }],
   classConstructor: { params: string[], body: string } | null
-  // Futuro: setters, @computed
+  // Futuro: @computed
 }
 ```
 
@@ -101,9 +102,9 @@ npm run format        # Formatear con Prettier
 ✅ Extracción del body de métodos usando `@babel/generator`
 ✅ Extracción y generación del constructor de clase
 ✅ Extracción y generación de métodos con decorador `@action` (como arrow functions en Lit)
+✅ Extracción y generación de setters
 🔜 Extender nuestra aplicación para que transforme:
 
-- setters
 - @computed
 
   🔜 parsear templates Handlebars
