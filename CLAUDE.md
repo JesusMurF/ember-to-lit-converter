@@ -45,6 +45,34 @@ Ember → Parser → AST → Extractor → IR → Generator → Lit
 - Node.js ES modules
 - `@babel/parser`, `@babel/traverse`, `@babel/generator`
 
+## Frontend
+
+**Tecnologías:** Lit + Vite + Tailwind CSS v4
+
+**Tailwind CSS + Shadow DOM**
+
+Los componentes Lit usan Shadow DOM que aísla los estilos. Se descartó deshabilitar el Shadow DOM (perdería la esencia de los Web Components). La solución elegida es inyectar Tailwind en el Shadow DOM vía `unsafeCSS`, exportado desde un módulo compartido para evitar duplicación cuando haya múltiples componentes:
+
+- `frontend/src/tailwind.css` — `@import "tailwindcss"` + tokens de diseño en `@theme`
+- `frontend/src/styles/tailwind.styles.js` — exporta `tailwindCss = unsafeCSS(tailwindStyles)`
+
+Cada componente importa `tailwindCss` y lo añade a su `static styles`. Vite incluye el módulo una sola vez en el bundle; los Constructable Stylesheets del navegador comparten el mismo `CSSStyleSheet` entre Shadow DOMs.
+
+**Tokens de diseño (`@theme` en `tailwind.css`)**
+
+Definen utilidades Tailwind semánticas reutilizables. Añadir un token aquí lo hace disponible como clase en todos los componentes:
+
+```css
+--color-text-primary: #ededed;    → text-text-primary
+--color-text-secondary: #888888;  → text-text-secondary
+--color-bg-input: #0a0a0a;        → bg-bg-input
+--color-bg-output: #111111;       → bg-bg-output
+--color-border-subtle: #2a2a2a;   → border-border-subtle
+--color-error: #ff4444;           → text-error
+--font-geist: 'Geist', ...        → font-geist
+--font-geist-mono: 'Geist Mono'   → font-geist-mono
+```
+
 ## API Framework
 
 **Fastify** fue seleccionado para la capa HTTP:
@@ -103,6 +131,8 @@ npm run format        # Formatear con Prettier
 ✅ Extracción y generación del constructor de clase
 ✅ Extracción y generación de métodos con decorador `@action` (como arrow functions en Lit)
 ✅ Extracción y generación de setters
+✅ Frontend rediseñado con tema oscuro estilo Vercel (Geist font, paleta negro/blanco)
+✅ Tailwind CSS v4 integrado en el frontend con patrón de módulo compartido (`tailwind.styles.js`)
 🔜 Extender nuestra aplicación para que transforme:
 
 - @computed

@@ -1,4 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, css, html } from 'lit';
+import { tailwindCss } from './styles/tailwind.styles.js';
 
 /**
  * Root application component for Ember to Lit converter.
@@ -13,97 +14,17 @@ export class AppRoot extends LitElement {
     error: { type: String },
   };
 
-  static styles = css`
-    :host {
-      display: block;
-      padding: 2rem;
-      font-family:
-        'Geist',
-        system-ui,
-        sans-serif;
-      max-width: 1400px;
-      margin: 0 auto;
-      color: #ededed;
-    }
-
-    h1 {
-      color: #ededed;
-      margin-bottom: 2rem;
-      font-weight: 600;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-    }
-
-    .panel {
-      display: flex;
-      flex-direction: column;
-    }
-
-    h2 {
-      font-size: 1rem;
-      color: #888;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 400px;
-      padding: 1rem;
-      font-family: 'Geist Mono', 'Courier New', monospace;
-      font-size: 0.9rem;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      resize: vertical;
-      background: #0a0a0a;
-      color: #ededed;
-    }
-
-    textarea:focus {
-      outline: 2px solid #fff;
-      border-color: transparent;
-    }
-
-    button {
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: #fff;
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-family: 'Geist', system-ui, sans-serif;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #e5e5e5;
-    }
-
-    button:disabled {
-      background: #333;
-      color: #666;
-      cursor: not-allowed;
-    }
-
-    .error {
-      color: #ff4444;
-      margin-top: 1rem;
-      padding: 1rem;
-      background: rgba(255, 68, 68, 0.08);
-      border: 1px solid rgba(255, 68, 68, 0.3);
-      border-radius: 6px;
-    }
-
-    .output {
-      background: #111;
-    }
-  `;
+  static styles = [
+    tailwindCss,
+    css`
+      :host {
+        display: block;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+    `,
+  ];
 
   constructor() {
     super();
@@ -162,26 +83,43 @@ export class AppRoot extends LitElement {
 
   render() {
     return html`
-      <h1>Ember to Lit Converter</h1>
+      <h1 class="text-2xl font-semibold text-text-primary mb-8">
+        Ember to Lit Converter
+      </h1>
 
-      <div class="container">
-        <div class="panel">
-          <h2>Ember Code (Input)</h2>
+      <div class="grid grid-cols-2 gap-16">
+        <div class="flex flex-col">
+          <h2 class="text-sm font-medium text-text-secondary mb-2">
+            Ember Code (Input)
+          </h2>
           <textarea
+            class="w-full min-h-100 p-4 font-geist-mono text-sm border border-border-subtle rounded-md resize-y bg-bg-input text-text-primary focus:outline-white focus:border-transparent"
             placeholder="Paste your Ember component here..."
             .value=${this.emberCode}
             @input=${this.handleInput}
           ></textarea>
-          <button @click=${this.convertCode} ?disabled=${this.isLoading}>
+          <button
+            class="mt-4 px-6 py-3 bg-white text-black font-medium text-sm rounded-md cursor-pointer hover:bg-[#e5e5e5] disabled:bg-[#333333] disabled:text-[#666666] disabled:cursor-not-allowed"
+            @click=${this.convertCode}
+            ?disabled=${this.isLoading}
+          >
             ${this.isLoading ? 'Converting...' : 'Convert to Lit'}
           </button>
-          ${this.error ? html`<div class="error">${this.error}</div>` : ''}
+          ${this.error
+            ? html`<div
+                class="mt-4 p-4 text-error bg-[rgba(255,68,68,0.08)] border border-[rgba(255,68,68,0.3)] rounded-md"
+              >
+                ${this.error}
+              </div>`
+            : ''}
         </div>
 
-        <div class="panel">
-          <h2>Lit Code (Output)</h2>
+        <div class="flex flex-col">
+          <h2 class="text-sm font-medium text-text-secondary mb-2">
+            Lit Code (Output)
+          </h2>
           <textarea
-            class="output"
+            class="w-full min-h-100 p-4 font-geist-mono text-sm border border-border-subtle rounded-md resize-y bg-bg-output text-text-primary"
             readonly
             .value=${this.litCode}
             placeholder="Converted Lit code will appear here..."
