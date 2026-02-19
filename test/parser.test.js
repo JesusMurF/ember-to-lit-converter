@@ -3,7 +3,16 @@ import assert from 'node:assert';
 import { parseEmberComponent } from '../src/parser.js';
 
 test('parseEmberComponent returns AST with Program body', () => {
-  const ast = parseEmberComponent('./src/example-component.js');
+  const code = `
+    import Component from '@glimmer/component';
+    import { tracked } from '@glimmer/tracking';
+
+    export default class MyComponent extends Component {
+      @tracked count = 0;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
   assert.strictEqual(ast.type, 'File');
   assert.ok(ast.program.body.length > 0);
 });

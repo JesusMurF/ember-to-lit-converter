@@ -275,6 +275,79 @@ test('extractComponentInfo constructor does not interfere with methods', () => {
   assert.strictEqual(info.methods[0].name, 'handleClick');
 });
 
+test('extractComponentInfo sets isAction to false on method without decorator', () => {
+  const code = `
+    import Component from '@glimmer/component';
+
+    export default class ButtonComponent extends Component {
+      handleClick() {
+        console.log('clicked');
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.methods.length, 1);
+  assert.strictEqual(info.methods[0].isAction, false);
+});
+
+test('extractComponentInfo sets isAction to true on method with @action decorator', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { action } from '@ember/object';
+
+    export default class ButtonComponent extends Component {
+      @action
+      handleClick() {
+        console.log('clicked');
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.methods.length, 1);
+  assert.strictEqual(info.methods[0].name, 'handleClick');
+  assert.strictEqual(info.methods[0].isAction, true);
+});
+
+test('extractComponentInfo correctly flags only @action methods in a mixed component', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { action } from '@ember/object';
+
+    export default class FormComponent extends Component {
+      @action
+      submit() {
+        this.send();
+      }
+
+      validate() {
+        return true;
+      }
+
+      @action
+      reset() {
+        this.value = null;
+      }
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.methods.length, 3);
+  assert.strictEqual(info.methods[0].name, 'submit');
+  assert.strictEqual(info.methods[0].isAction, true);
+  assert.strictEqual(info.methods[1].name, 'validate');
+  assert.strictEqual(info.methods[1].isAction, false);
+  assert.strictEqual(info.methods[2].name, 'reset');
+  assert.strictEqual(info.methods[2].isAction, true);
+});
+
 test('extractComponentInfo handles getters and methods together', () => {
   const code = `
     import Component from '@glimmer/component';

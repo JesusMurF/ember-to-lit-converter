@@ -109,6 +109,9 @@ function generateMethods(info) {
 
   const methods = info.methods.map((method) => {
     const params = method.params.join(', ');
+    if (method.isAction) {
+      return `  ${method.name} = (${params}) => ${method.body}`;
+    }
     return `  ${method.name}(${params}) ${method.body}`;
   });
 

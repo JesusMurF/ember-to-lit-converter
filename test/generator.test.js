@@ -252,6 +252,57 @@ test('generateLitComponent constructor appears after properties in output', () =
   assert.ok(propertyIndex < constructorIndex, 'properties should come before constructor');
 });
 
+test('generateLitComponent generates @action method as arrow function', () => {
+  const info = {
+    className: 'ButtonComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [{ name: 'handleClick', params: [], body: "{\n  console.log('clicked');\n}", isAction: true }],
+    getters: [],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('handleClick = () =>'), 'should generate arrow function');
+  assert.ok(!output.includes('handleClick()'), 'should not generate regular method');
+  assert.ok(output.includes("console.log('clicked')"));
+});
+
+test('generateLitComponent generates @action method with parameters as arrow function', () => {
+  const info = {
+    className: 'FormComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [{ name: 'submit', params: ['event'], body: '{\n  event.preventDefault();\n}', isAction: true }],
+    getters: [],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('submit = (event) =>'), 'should generate arrow function with params');
+  assert.ok(output.includes('event.preventDefault()'));
+});
+
+test('generateLitComponent generates mixed @action and regular methods correctly', () => {
+  const info = {
+    className: 'FormComponent',
+    trackedProperties: [],
+    imports: [],
+    methods: [
+      { name: 'submit', params: ['event'], body: '{\n  this.send();\n}', isAction: true },
+      { name: 'validate', params: [], body: '{\n  return true;\n}', isAction: false },
+      { name: 'reset', params: [], body: '{\n  this.value = null;\n}', isAction: true },
+    ],
+    getters: [],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('submit = (event) =>'), 'submit should be arrow function');
+  assert.ok(output.includes('validate()'), 'validate should be regular method');
+  assert.ok(output.includes('reset = () =>'), 'reset should be arrow function');
+});
+
 test('generateLitComponent maintains standard class order: properties, getters, methods, render', () => {
   const info = {
     className: 'CompleteComponent',
