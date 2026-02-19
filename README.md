@@ -27,6 +27,19 @@ Se eligió **carpeta `/frontend` separada** en lugar de monorepo o estructura mi
 - `package.json` independiente por capa
 - Fácil migrar a monorepo si escala
 
+### Tailwind CSS + Shadow DOM
+
+Los componentes Lit usan Shadow DOM, que aísla los estilos. Para usar Tailwind se optó por **inyectarlo en el Shadow DOM vía `unsafeCSS`**, exportado desde un módulo compartido:
+
+```
+frontend/src/tailwind.css          # @import "tailwindcss" + tokens de diseño (@theme)
+frontend/src/styles/tailwind.styles.js  # export const tailwindCss = unsafeCSS(...)
+```
+
+Cualquier componente importa `tailwindCss` y lo añade a su `static styles`. Vite/Rollup incluye el módulo una sola vez en el bundle, y los Constructable Stylesheets del navegador comparten el mismo objeto `CSSStyleSheet` entre todos los Shadow DOMs.
+
+Los tokens de diseño (colores, fuentes) están definidos en `tailwind.css` bajo `@theme`, lo que genera utilidades Tailwind semánticas reutilizables (`text-text-primary`, `bg-bg-input`, `font-geist-mono`, etc.).
+
 ## Stack
 
 **Backend:**
@@ -37,6 +50,7 @@ Se eligió **carpeta `/frontend` separada** en lugar de monorepo o estructura mi
 **Frontend:**
 - Lit (web components)
 - Vite (dev server, bundler)
+- Tailwind CSS v4 (utilidades de estilos, inyectado en Shadow DOM vía `unsafeCSS`)
 
 ## Desarrollo
 

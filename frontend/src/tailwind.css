@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --font-geist: 'Geist', system-ui, sans-serif;
+  --font-geist-mono: 'Geist Mono', 'Courier New', monospace;
+
+  --color-text-primary: #ededed;
+  --color-text-secondary: #888888;
+  --color-bg-input: #0a0a0a;
+  --color-bg-output: #111111;
+  --color-border-subtle: #2a2a2a;
+  --color-error: #ff4444;
+}
