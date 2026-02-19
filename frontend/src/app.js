@@ -18,22 +18,24 @@ export class AppRoot extends LitElement {
       display: block;
       padding: 2rem;
       font-family:
+        'Geist',
         system-ui,
-        -apple-system,
         sans-serif;
       max-width: 1400px;
       margin: 0 auto;
+      color: #ededed;
     }
 
     h1 {
-      color: #333;
+      color: #ededed;
       margin-bottom: 2rem;
+      font-weight: 600;
     }
 
     .container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      gap: 4rem;
     }
 
     .panel {
@@ -43,56 +45,63 @@ export class AppRoot extends LitElement {
 
     h2 {
       font-size: 1rem;
-      color: #666;
+      color: #888;
       margin-bottom: 0.5rem;
+      font-weight: 500;
     }
 
     textarea {
       width: 100%;
       min-height: 400px;
       padding: 1rem;
-      font-family: 'Courier New', monospace;
+      font-family: 'Geist Mono', 'Courier New', monospace;
       font-size: 0.9rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
       resize: vertical;
+      background: #0a0a0a;
+      color: #ededed;
     }
 
     textarea:focus {
-      outline: 2px solid #4caf50;
+      outline: 2px solid #fff;
       border-color: transparent;
     }
 
     button {
       margin-top: 1rem;
       padding: 0.75rem 1.5rem;
-      background: #4caf50;
-      color: white;
+      background: #fff;
+      color: #000;
       border: none;
-      border-radius: 4px;
-      font-size: 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: 'Geist', system-ui, sans-serif;
+      font-weight: 500;
       cursor: pointer;
     }
 
     button:hover {
-      background: #45a049;
+      background: #e5e5e5;
     }
 
     button:disabled {
-      background: #ccc;
+      background: #333;
+      color: #666;
       cursor: not-allowed;
     }
 
     .error {
-      color: #d32f2f;
+      color: #ff4444;
       margin-top: 1rem;
       padding: 1rem;
-      background: #ffebee;
-      border-radius: 4px;
+      background: rgba(255, 68, 68, 0.08);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 6px;
     }
 
     .output {
-      background: #f5f5f5;
+      background: #111;
     }
   `;
 
