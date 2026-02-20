@@ -112,6 +112,40 @@ El panel de entrada del frontend evolucionará a dos pestañas (JS y HBS) para p
 - **Consistencia:** Alineado con ES modules y test runner nativo de Node.js
 - **Logging integrado:** Pino logger incluido
 
+## Despliegue
+
+**Plataforma:** Vercel (frontend estático + serverless function para la API)
+
+**Arquitectura:**
+
+```
+Frontend (Vercel Static)     →  frontend/dist        (build: vite)
+Backend  (Vercel Serverless) →  api/convert.js       (Fastify adaptado)
+```
+
+**Frontend**
+
+- Build: `npm run build --prefix frontend`
+- Output: `frontend/dist`
+- Variable de entorno requerida: `VITE_API_URL` — URL completa del endpoint de conversión (ej: `https://<proyecto>.vercel.app/api/convert`)
+
+**Backend (Vercel Serverless Function)**
+
+- Vercel detecta automáticamente todo lo que esté en `api/` como serverless functions
+- `api/convert.js` adapta Fastify a la interfaz nativa de Vercel (`req`/`res`) usando `app.server.emit('request', req, res)`
+- La instancia de Fastify (`const app`) se inicializa fuera del handler para reutilizarse entre invocaciones calientes (cold start optimization)
+- `logLevel: 'error'` en producción para reducir ruido en logs
+
+**Configuración (`vercel.json`)**
+
+```json
+{
+  "buildCommand": "npm run build --prefix frontend",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install && npm install --prefix frontend"
+}
+```
+
 ## Scope
 
 **Fuera de scope inicial:**
