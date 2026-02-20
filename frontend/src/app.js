@@ -126,6 +126,16 @@ export class AppRoot extends LitElement {
           ></textarea>
         </div>
       </div>
+
+      <p class="mt-12 text-center text-sm text-text-secondary">
+        Made with ❤️ by
+        <a
+          href="https://x.com/JesusMurF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-text-primary hover:underline"
+        >@JesusMurF</a>
+      </p>
     `;
   }
 }
