@@ -9,14 +9,18 @@ import { convertRoutes } from './routes/convert.js';
  * @returns {import('fastify').FastifyInstance} Configured Fastify server instance
  */
 export function buildServer(options = {}) {
+  const logLevel = options.logLevel || process.env.LOG_LEVEL || 'info';
   const fastify = Fastify({
     logger: {
-      level: options.logLevel || 'info',
+      level: logLevel,
+      ...(logLevel === 'debug' && {
+        transport: { target: 'pino-pretty', options: { colorize: true } },
+      }),
     },
   });
 
   fastify.register(cors, {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://127.0.0.1:5173'],
   });
 
   fastify.register(convertRoutes);

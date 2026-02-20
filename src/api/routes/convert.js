@@ -43,6 +43,7 @@ export async function convertRoutes(fastify) {
         const ast = parseEmberComponent(code);
         const info = extractComponentInfo(ast);
         const litCode = generateLitComponent(info);
+        request.log.debug({ ir: info }, 'extracted IR');
 
         return { litCode };
       } catch (error) {
