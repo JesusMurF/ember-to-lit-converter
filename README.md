@@ -1,108 +1,84 @@
 # Ember to Lit Converter
 
-Automatiza el 70-80% de la conversión de componentes Ember a Lit, marcando con TODOs lo que requiere revisión manual.
+Herramienta que automatiza el 70-80% de la migración de componentes Ember a Lit Web Components. Parsea el JS del componente, genera el equivalente en Lit y marca con `TODO` lo que requiere revisión manual. Orientada a equipos migrando proyectos Ember a Web Components modernos.
 
-## Arquitectura
-
-```
-Ember → Parser → AST → Extractor → IR → Generator → Lit
-```
-
-**Backend:** Node.js + Fastify API
-**Frontend:** Lit + Vite SPA
-
-## Estructura del Proyecto
-
-```
-/src              # Backend (parser, extractor, generator, API)
-/frontend         # Frontend SPA (Lit + Vite)
-/test             # Tests unitarios
-```
-
-### Decisión de Estructura Frontend
-
-Se eligió **carpeta `/frontend` separada** en lugar de monorepo o estructura mixta:
-- Impacto mínimo en el backend existente
-- Separación clara de responsabilidades
-- `package.json` independiente por capa
-- Fácil migrar a monorepo si escala
-
-### Tailwind CSS + Shadow DOM
-
-Los componentes Lit usan Shadow DOM, que aísla los estilos. Para usar Tailwind se optó por **inyectarlo en el Shadow DOM vía `unsafeCSS`**, exportado desde un módulo compartido:
-
-```
-frontend/src/tailwind.css          # @import "tailwindcss" + tokens de diseño (@theme)
-frontend/src/styles/tailwind.styles.js  # export const tailwindCss = unsafeCSS(...)
-```
-
-Cualquier componente importa `tailwindCss` y lo añade a su `static styles`. Vite/Rollup incluye el módulo una sola vez en el bundle, y los Constructable Stylesheets del navegador comparten el mismo objeto `CSSStyleSheet` entre todos los Shadow DOMs.
-
-Los tokens de diseño (colores, fuentes) están definidos en `tailwind.css` bajo `@theme`, lo que genera utilidades Tailwind semánticas reutilizables (`text-text-primary`, `bg-bg-input`, `font-geist-mono`, etc.).
+<!-- TODO: añadir screenshot o GIF de la interfaz web -->
 
 ## Stack
 
-**Backend:**
-- Fastify (capa HTTP, 2x más rápido que Express)
-- @babel/parser, @babel/traverse (manipulación AST)
-- Test runner nativo de Node.js
+| Capa | Tecnología |
+|---|---|
+| Backend | Node.js, Fastify, Babel |
+| Frontend | Lit, Vite, Tailwind CSS v4 |
+| Despliegue | Vercel |
 
-**Frontend:**
-- Lit (web components)
-- Vite (dev server, bundler)
-- Tailwind CSS v4 (utilidades de estilos, inyectado en Shadow DOM vía `unsafeCSS`)
+## Requisitos
 
-## Desarrollo
+- Node.js ≥ 20.19.3
+- npm
 
-**Backend (puerto 3000):**
+## Instalación
+
 ```bash
+# Clonar el repositorio
+git clone https://github.com/JesusMurF/ember-to-lit-converter.git
+cd ember-to-lit-converter
+
+# Instalar dependencias del backend
 npm install
+
+# Instalar dependencias del frontend
+npm install --prefix frontend
+```
+
+### Variables de entorno
+
+Crea un archivo `.env` en `frontend/` con:
+
+```
+VITE_API_URL=http://localhost:3000/api/convert
+```
+
+En producción, apunta a la URL del backend desplegado.
+
+## Uso
+
+**Arrancar el backend (puerto 3000):**
+```bash
 npm run dev
 ```
 
-**Frontend (puerto 5173):**
+**Arrancar el frontend (puerto 5173):**
 ```bash
-cd frontend
-npm install
-npm run dev
+cd frontend && npm run dev
 ```
 
-**Acceso:**
-- Frontend: http://localhost:5173
-- API: http://localhost:3000/api/convert
+Abre http://localhost:5173, pega el código de un componente Ember y pulsa **Convert to Lit**.
 
-## Funcionalidades Actuales
-
-- ✅ Parsear componentes Ember (clases, tracked properties, métodos, getters, setters, actions, computed)
-- ✅ Convertir a componentes Lit
-- ✅ Endpoint HTTP API (`POST /api/convert`)
-- ✅ Interfaz web (input/output con textareas)
-
-## Linting y Formateo
-
-ESLint 9+ (flat config) + Prettier en ambos packages.
-
+**Llamada directa a la API:**
 ```bash
-# Backend
-npm run lint          # Ejecutar ESLint
-npm run lint:fix      # Auto-fix
-npm run format        # Formatear con Prettier
-npm run format:check  # Verificar formateo
-
-# Frontend
-cd frontend
-npm run lint
-npm run format
+curl -X POST http://localhost:3000/api/convert \
+  -H "Content-Type: application/json" \
+  -d '{"code": "export default class MyComponent extends Component { @tracked count = 0; }"}'
 ```
 
-**Plugins:** `eslint-plugin-jsdoc` (backend), `eslint-plugin-lit` (frontend), `eslint-config-prettier` (ambos).
+Respuesta: `{ "litCode": "..." }`
 
-## Fuera de Scope
+## Estructura del proyecto
 
-Servicios, observers, mixins, modifiers complejos, routing, templates Handlebars (planeado).
+```
+/src        # Backend: parser, extractor, generator, API Fastify
+/frontend   # Frontend SPA (Lit + Vite)
+/test       # Tests unitarios (Node.js test runner nativo)
+/api        # Adaptador Fastify para Vercel Serverless
+```
 
-## Convenciones Git
+## Contribuir
 
-[Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <description>`
+1. Crea una rama desde `main`: `feat/<nombre>` o `fix/<nombre>`
+2. Asegúrate de que los tests pasan: `npm test`
+3. Abre un PR con un mensaje siguiendo [Conventional Commits](https://www.conventionalcommits.org/)
 
-Tipos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`
+## Licencia
+
+ISC
