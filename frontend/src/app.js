@@ -1,6 +1,34 @@
 import { LitElement, css, html } from 'lit';
 import { tailwindCss } from './styles/tailwind.styles.js';
 
+const EXAMPLE_EMBER_CODE = `import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
+
+export default class CounterComponent extends Component {
+  @tracked count = 0;
+  @tracked name = 'World';
+
+  get greeting() {
+    return \`Hello, \${this.name}!\`;
+  }
+
+  @action
+  increment() {
+    this.count++;
+  }
+
+  @action
+  decrement() {
+    this.count--;
+  }
+
+  @action
+  reset() {
+    this.count = 0;
+  }
+}`;
+
 /**
  * Root application component for Ember to Lit converter.
  *
@@ -28,7 +56,7 @@ export class AppRoot extends LitElement {
 
   constructor() {
     super();
-    this.emberCode = '';
+    this.emberCode = EXAMPLE_EMBER_CODE;
     this.litCode = '';
     this.isLoading = false;
     this.error = '';
