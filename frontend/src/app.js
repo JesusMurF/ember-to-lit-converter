@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { tailwindCss } from './styles/tailwind.styles.js';
+import './components/code-editor.js';
 
 const EXAMPLE_EMBER_CODE = `import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
@@ -40,6 +41,7 @@ export class AppRoot extends LitElement {
     litCode: { type: String },
     isLoading: { type: Boolean },
     error: { type: String },
+    copied: { type: Boolean },
   };
 
   static styles = [
@@ -60,6 +62,7 @@ export class AppRoot extends LitElement {
     this.litCode = '';
     this.isLoading = false;
     this.error = '';
+    this.copied = false;
   }
 
   /**
@@ -101,12 +104,25 @@ export class AppRoot extends LitElement {
   }
 
   /**
-   * Handles input changes in the Ember code textarea.
+   * Handles content changes from the input Monaco editor.
    *
-   * @param {Event} e - Input event
+   * @param {CustomEvent} e - value-change event with new code as detail
    */
-  handleInput(e) {
-    this.emberCode = e.target.value;
+  handleInputChange(e) {
+    this.emberCode = e.detail;
+  }
+
+  /**
+   * Copies the output Lit code to the clipboard.
+   *
+   * @async
+   */
+  async copyOutput() {
+    await navigator.clipboard.writeText(this.litCode);
+    this.copied = true;
+    setTimeout(() => {
+      this.copied = false;
+    }, 1500);
   }
 
   render() {
@@ -120,12 +136,12 @@ export class AppRoot extends LitElement {
           <h2 class="text-sm font-medium text-text-secondary mb-2">
             Ember Code (Input)
           </h2>
-          <textarea
-            class="w-full min-h-100 p-4 font-geist-mono text-sm border border-border-subtle rounded-md resize-y bg-bg-input text-text-primary focus:outline-white focus:border-transparent"
-            placeholder="Paste your Ember component here..."
+          <code-editor-element
+            class="border border-border-subtle rounded-md overflow-hidden"
+            style="height: 500px"
             .value=${this.emberCode}
-            @input=${this.handleInput}
-          ></textarea>
+            @value-change=${this.handleInputChange}
+          ></code-editor-element>
           <button
             class="mt-4 px-6 py-3 bg-white text-black font-medium text-sm rounded-md cursor-pointer hover:bg-[#e5e5e5] disabled:bg-[#333333] disabled:text-[#666666] disabled:cursor-not-allowed"
             @click=${this.convertCode}
@@ -143,15 +159,24 @@ export class AppRoot extends LitElement {
         </div>
 
         <div class="flex flex-col">
-          <h2 class="text-sm font-medium text-text-secondary mb-2">
-            Lit Code (Output)
-          </h2>
-          <textarea
-            class="w-full min-h-100 p-4 font-geist-mono text-sm border border-border-subtle rounded-md resize-y bg-bg-output text-text-primary"
-            readonly
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-medium text-text-secondary">
+              Lit Code (Output)
+            </h2>
+            <button
+              class="px-3 py-1 text-xs font-medium rounded-md cursor-pointer bg-[#1e1e1e] text-text-secondary border border-border-subtle hover:text-text-primary hover:border-[#444] disabled:opacity-30 disabled:cursor-not-allowed"
+              @click=${this.copyOutput}
+              ?disabled=${!this.litCode}
+            >
+              ${this.copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+          <code-editor-element
+            class="border border-border-subtle rounded-md overflow-hidden"
+            style="height: 500px"
             .value=${this.litCode}
-            placeholder="Converted Lit code will appear here..."
-          ></textarea>
+            readonly
+          ></code-editor-element>
         </div>
       </div>
 

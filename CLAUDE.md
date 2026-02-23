@@ -59,6 +59,16 @@ bg-bg-output: #111            border-border-subtle: #2a2a2a  text-error: #ff4444
 font-geist                    font-geist-mono
 ```
 
+**CodeMirror 6 (editores de código)** — usado en lugar de Monaco Editor. Monaco tiene dos incompatibilidades con este stack:
+1. Su loader AMD conflicta con el shim `require` de Vite → `require.toUrl` undefined en runtime
+2. Inyecta CSS en `document.head`, que no alcanza el Shadow DOM → layout roto silenciosamente
+
+CodeMirror 6 resuelve ambos nativamente: ESM puro (sin AMD) + parámetro `root` en `EditorView` que inyecta estilos en el shadow root.
+
+- Componente: `frontend/src/components/code-editor.js` → `<code-editor-element>`
+- Clave: `root: this.renderRoot` en `new EditorView({ ... })`
+- Deps: `codemirror`, `@codemirror/lang-javascript`, `@codemirror/theme-one-dark`
+
 ## API y Despliegue (Vercel)
 
 ```
