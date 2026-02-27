@@ -41,7 +41,7 @@ function generateClass(info) {
   const getters = generateGetters(info);
   const setters = generateSetters(info);
   const methods = generateMethods(info);
-  const renderMethod = generateRenderMethod();
+  const renderMethod = generateRenderMethod(info);
 
   return `export class ${className} extends LitElement {
     ${services}
@@ -159,12 +159,32 @@ function generateMethods(info) {
 
 /**
  * Generates the render method declaration.
+ * Uses ir.template if present, otherwise emits a TODO placeholder.
+ * @param {object} info - IR object containing optional template field
  * @returns {string} Render method declaration
  */
-function generateRenderMethod() {
-  return `  render() {
+function generateRenderMethod(info) {
+  if (!info.template || info.template.roots.length === 0) {
+    return `  render() {
     return html\`
       <!-- TODO: Convertir template Handlebars -->
     \`;
   }`;
+  }
+
+  const body = info.template.roots.map(generateNode).join('');
+
+  return `  render() {
+    return html\`${body}\`;
+  }`;
+}
+
+/**
+ * Converts a single IR template node to its Lit html string representation.
+ * @param {object} node - IR node
+ * @returns {string} Lit template fragment
+ */
+function generateNode(node) {
+  if (node.type === 'expression') return `\${${node.code}}`;
+  return '';
 }

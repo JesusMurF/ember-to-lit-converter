@@ -50,7 +50,7 @@ test('POST /api/convert returns 400 for invalid JavaScript syntax', async () => 
   assert.strictEqual(response.statusCode, 400);
 
   const data = JSON.parse(response.payload);
-  assert.strictEqual(data.error, 'Invalid JavaScript syntax');
+  assert.strictEqual(data.error, 'Invalid syntax');
   assert.ok(data.details);
 
   await server.close();
@@ -84,6 +84,53 @@ test('POST /api/convert returns 400 when code exceeds max length', async () => {
   });
 
   assert.strictEqual(response.statusCode, 400);
+
+  await server.close();
+});
+
+test('POST /api/convert converts {{this.prop}} from hbs field into render body', async () => {
+  const server = buildServer({ logLevel: 'silent' });
+
+  const response = await server.inject({
+    method: 'POST',
+    url: '/api/convert',
+    payload: {
+      code: `
+        import Component from '@glimmer/component';
+        export default class MyComponent extends Component {}
+      `,
+      hbs: '{{this.title}}',
+    },
+  });
+
+  assert.strictEqual(response.statusCode, 200);
+
+  const data = JSON.parse(response.payload);
+  assert.ok(data.litCode.includes('${this.title}'));
+  assert.ok(!data.litCode.includes('TODO: Convertir template Handlebars'));
+
+  await server.close();
+});
+
+test('POST /api/convert returns 400 for invalid HBS syntax', async () => {
+  const server = buildServer({ logLevel: 'silent' });
+
+  const response = await server.inject({
+    method: 'POST',
+    url: '/api/convert',
+    payload: {
+      code: `
+        import Component from '@glimmer/component';
+        export default class MyComponent extends Component {}
+      `,
+      hbs: '{{#if}}',
+    },
+  });
+
+  assert.strictEqual(response.statusCode, 400);
+
+  const data = JSON.parse(response.payload);
+  assert.strictEqual(data.error, 'Invalid syntax');
 
   await server.close();
 });

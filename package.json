@@ -21,6 +21,7 @@
     "@babel/parser": "^7.29.0",
     "@babel/traverse": "^7.29.0",
     "@fastify/cors": "^11.2.0",
+    "@glimmer/syntax": "^0.95.0",
     "fastify": "^5.7.4"
   },
   "type": "module",
