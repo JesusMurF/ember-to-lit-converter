@@ -35,6 +35,7 @@ function generateImports(info) {
  */
 function generateClass(info) {
   const className = info.className;
+  const services = generateServices(info);
   const properties = generateProperties(info);
   const constructor = generateConstructor(info);
   const getters = generateGetters(info);
@@ -43,6 +44,7 @@ function generateClass(info) {
   const renderMethod = generateRenderMethod();
 
   return `export class ${className} extends LitElement {
+    ${services}
     ${properties}
     ${constructor}
     ${getters}
@@ -62,6 +64,24 @@ function generateConstructor(info) {
   if (!info.classConstructor) return '';
   const params = info.classConstructor.params.join(', ');
   return `  constructor(${params}) ${info.classConstructor.body}\n`;
+}
+
+/**
+ * Generates service stub declarations with TODO comments.
+ * Each Ember service becomes a null property annotated with a migration hint.
+ * @param {object} info - IR object containing services
+ * @returns {string} Service stub declarations or empty string
+ */
+function generateServices(info) {
+  if (!info.services || info.services.length === 0) return '';
+
+  const services = info.services.map((s) => {
+    const serviceRef =
+      s.name !== s.serviceName ? `('${s.serviceName}') ${s.name}` : s.name;
+    return `  // TODO: @service ${serviceRef} — replace with your preferred DI pattern (singleton, reactive controller, context API…)\n  ${s.name} = null;`;
+  });
+
+  return services.join('\n\n') + '\n';
 }
 
 /**
