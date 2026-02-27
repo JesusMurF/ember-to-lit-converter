@@ -447,3 +447,114 @@ test('extractComponentInfo handles getters and methods together', () => {
   assert.strictEqual(info.methods[0].name, 'handleClick');
   assert.ok(info.methods[0].body.includes("console.log('clicked')"));
 });
+
+test('extractComponentInfo extracts single @service property', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { service } from '@ember/service';
+
+    export default class MyComponent extends Component {
+      @service store;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 1);
+  assert.strictEqual(info.services[0].name, 'store');
+  assert.strictEqual(info.services[0].serviceName, 'store');
+});
+
+test('extractComponentInfo extracts multiple @service properties', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { service } from '@ember/service';
+
+    export default class MyComponent extends Component {
+      @service store;
+      @service router;
+      @service intl;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 3);
+  assert.strictEqual(info.services[0].name, 'store');
+  assert.strictEqual(info.services[1].name, 'router');
+  assert.strictEqual(info.services[2].name, 'intl');
+});
+
+test('extractComponentInfo extracts @service with custom service name', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { service } from '@ember/service';
+
+    export default class MyComponent extends Component {
+      @service('my-custom-service') myService;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 1);
+  assert.strictEqual(info.services[0].name, 'myService');
+  assert.strictEqual(info.services[0].serviceName, 'my-custom-service');
+});
+
+test('extractComponentInfo extracts @inject as classic alias for @service', () => {
+  const code = `
+    import Component from '@ember/component';
+    import { inject } from '@ember/service';
+
+    export default class MyComponent extends Component {
+      @inject store;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 1);
+  assert.strictEqual(info.services[0].name, 'store');
+  assert.strictEqual(info.services[0].serviceName, 'store');
+});
+
+test('extractComponentInfo returns empty services array when no services present', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { tracked } from '@glimmer/tracking';
+
+    export default class MyComponent extends Component {
+      @tracked count = 0;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 0);
+});
+
+test('extractComponentInfo does not include @service properties in trackedProperties', () => {
+  const code = `
+    import Component from '@glimmer/component';
+    import { tracked } from '@glimmer/tracking';
+    import { service } from '@ember/service';
+
+    export default class MyComponent extends Component {
+      @service store;
+      @tracked count = 0;
+    }
+  `;
+
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  assert.strictEqual(info.services.length, 1);
+  assert.strictEqual(info.trackedProperties.length, 1);
+  assert.strictEqual(info.trackedProperties[0].name, 'count');
+});

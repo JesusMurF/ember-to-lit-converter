@@ -393,3 +393,103 @@ test('generateLitComponent maintains standard class order: properties, getters, 
   assert.ok(getterIndex < methodIndex, 'getters should come before methods');
   assert.ok(methodIndex < renderIndex, 'methods should come before render');
 });
+
+test('generateLitComponent generates null stub and TODO comment for a single service', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    services: [{ name: 'store', serviceName: 'store' }],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [],
+    classConstructor: null,
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('// TODO: @service store —'), 'should include TODO comment with service name');
+  assert.ok(output.includes('store = null;'), 'should declare property as null');
+});
+
+test('generateLitComponent includes custom service name in TODO comment', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    services: [{ name: 'myService', serviceName: 'my-custom-service' }],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [],
+    classConstructor: null,
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(
+    output.includes("// TODO: @service ('my-custom-service') myService —"),
+    'should include custom service name in TODO',
+  );
+  assert.ok(output.includes('myService = null;'), 'should declare property as null');
+});
+
+test('generateLitComponent generates stubs for multiple services', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    services: [
+      { name: 'store', serviceName: 'store' },
+      { name: 'router', serviceName: 'router' },
+    ],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [],
+    classConstructor: null,
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('store = null;'), 'should declare store as null');
+  assert.ok(output.includes('router = null;'), 'should declare router as null');
+});
+
+test('generateLitComponent omits service section when no services present', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [],
+    services: [],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [],
+    classConstructor: null,
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(!output.includes('// TODO: @service'), 'should not include service TODO');
+  assert.ok(!output.includes('= null;'), 'should not include null property');
+});
+
+test('generateLitComponent places services before tracked properties', () => {
+  const info = {
+    className: 'MyComponent',
+    trackedProperties: [{ name: 'count', initialValue: 0 }],
+    services: [{ name: 'store', serviceName: 'store' }],
+    imports: [],
+    methods: [],
+    getters: [],
+    setters: [],
+    classConstructor: null,
+  };
+
+  const output = generateLitComponent(info);
+
+  const serviceIndex = output.indexOf('store = null;');
+  const propertyIndex = output.indexOf('@property()');
+
+  assert.ok(serviceIndex > -1, 'service stub should be present');
+  assert.ok(propertyIndex > -1, 'tracked property should be present');
+  assert.ok(serviceIndex < propertyIndex, 'services should come before tracked properties');
+});
