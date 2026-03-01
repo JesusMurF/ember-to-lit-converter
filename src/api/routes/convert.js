@@ -1,6 +1,9 @@
 import { parseEmberComponent } from '../../parser.js';
 import { extractComponentInfo } from '../../extractor.js';
 import { generateLitComponent } from '../../generator.js';
+import { parseHbsTemplate } from '../../hbs-parser.js';
+import { extractTemplateInfo } from '../../hbs-extractor.js';
+import { EmberSyntaxError, HbsSyntaxError } from '../../errors.js';
 import {
   convertRequestSchema,
   convertResponseSchema,
@@ -12,6 +15,24 @@ import {
  * @param {import('fastify').FastifyInstance} fastify - The Fastify application instance
  * @returns {Promise<void>}
  */
+/**
+ * Builds the Intermediate Representation (IR) from Ember JS and optional HBS sources.
+ * @param {string} code - Ember component JavaScript source
+ * @param {string | undefined} hbs - Ember Handlebars template source (optional)
+ * @returns {object} IR object ready for code generation
+ */
+function buildIr(code, hbs) {
+  const ast = parseEmberComponent(code);
+  const info = extractComponentInfo(ast);
+
+  if (hbs) {
+    const hbsAst = parseHbsTemplate(hbs);
+    info.template = extractTemplateInfo(hbsAst);
+  }
+
+  return info;
+}
+
 export async function convertRoutes(fastify) {
   fastify.post('/api/convert', {
     schema: {
@@ -37,21 +58,20 @@ export async function convertRoutes(fastify) {
      * @throws {Error} Returns 500 status with error details for unexpected conversion errors
      */
     handler: async (request, reply) => {
-      const { code } = request.body;
+      const { code, hbs } = request.body;
 
       try {
-        const ast = parseEmberComponent(code);
-        const info = extractComponentInfo(ast);
-        const litCode = generateLitComponent(info);
-        request.log.debug({ ir: info }, 'extracted IR');
+        const ir = buildIr(code, hbs);
+        const litCode = generateLitComponent(ir);
+        request.log.debug({ ir }, 'extracted IR');
 
         return { litCode };
       } catch (error) {
-        if (error.message === 'Ember component syntax error') {
+        if (error instanceof EmberSyntaxError || error instanceof HbsSyntaxError) {
           reply.code(400);
           return {
-            error: 'Invalid JavaScript syntax',
-            details: 'The provided Ember component code contains syntax errors',
+            error: 'Invalid syntax',
+            details: 'The provided Ember component or template code contains syntax errors',
           };
         }
 

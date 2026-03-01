@@ -1,5 +1,6 @@
 import fs from 'fs';
 import * as parser from '@babel/parser';
+import { EmberSyntaxError } from './errors.js';
 
 /**
  * Parses an Ember component into an Abstract Syntax Tree (AST).
@@ -24,6 +25,6 @@ export function parseEmberComponent(filePathOrCode) {
     });
     return ast;
   } catch {
-    throw new Error('Ember component syntax error');
+    throw new EmberSyntaxError();
   }
 }

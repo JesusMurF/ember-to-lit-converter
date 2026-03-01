@@ -13,6 +13,12 @@ export const convertRequestSchema = {
       maxLength: 102400,
       description: 'Ember component JavaScript code to convert',
     },
+    hbs: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 102400,
+      description: 'Ember Handlebars template code (optional)',
+    },
   },
 };
 

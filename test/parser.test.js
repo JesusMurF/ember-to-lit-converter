@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { parseEmberComponent } from '../src/parser.js';
+import { EmberSyntaxError } from '../src/errors.js';
 
 test('parseEmberComponent returns AST with Program body', () => {
   const code = `
@@ -26,10 +27,7 @@ test('parseEmberComponent throws error on invalid JavaScript syntax', () => {
     }
   `;
 
-  assert.throws(() => parseEmberComponent(invalidCode), {
-    name: 'Error',
-    message: 'Ember component syntax error',
-  });
+  assert.throws(() => parseEmberComponent(invalidCode), EmberSyntaxError);
 });
 
 test('parseEmberComponent accepts valid code as string', () => {
