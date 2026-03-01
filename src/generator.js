@@ -186,5 +186,43 @@ function generateRenderMethod(info) {
  */
 function generateNode(node) {
   if (node.type === 'expression') return `\${${node.code}}`;
+  if (node.type === 'text') return node.chars;
+  if (node.type === 'element') return generateElement(node);
   return '';
+}
+
+/**
+ * Converts an element IR node to its Lit html string representation.
+ * @param {{ tag: string, attrs: Array<object>, children: Array<object> }} node - IR element node
+ * @returns {string} Lit template fragment
+ */
+function generateElement(node) {
+  const attrs = node.attrs.map(generateAttr).join('');
+  const children = node.children.map(generateNode).join('');
+  return `<${node.tag}${attrs}>${children}</${node.tag}>`;
+}
+
+/**
+ * Converts an attribute IR node to its HTML/Lit string representation.
+ * @param {{ name: string, value: object }} attr - IR attribute node
+ * @returns {string} Attribute string fragment
+ */
+function generateAttr(attr) {
+  const value = generateAttrValue(attr.value);
+  return ` ${attr.name}=${value}`;
+}
+
+/**
+ * Converts an attribute value IR node to its string representation.
+ * Static values use quoted strings; expressions use Lit bindings; concat mixes both.
+ * @param {{ type: string, chars?: string, code?: string, parts?: Array<object> }} value - IR attr value
+ * @returns {string} Attribute value string
+ */
+function generateAttrValue(value) {
+  if (value.type === 'static') return `"${value.chars}"`;
+  if (value.type === 'expression') return `\${${value.code}}`;
+  const parts = value.parts
+    .map((p) => (p.type === 'static' ? p.chars : `\${${p.code}}`))
+    .join('');
+  return `"${parts}"`;
 }
