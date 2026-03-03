@@ -1,0 +1,11 @@
+<div class="toggle {{this.statusClass}}">
+  <button type="button">
+    {{#if this.isActive}}
+      <span class="toggle__icon toggle__icon--on">✓</span>
+      <span class="toggle__label">On</span>
+    {{else}}
+      <span class="toggle__icon toggle__icon--off">✗</span>
+      <span class="toggle__label">Off</span>
+    {{/if}}
+  </button>
+</div>
