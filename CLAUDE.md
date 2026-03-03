@@ -123,16 +123,16 @@ Ember HBS → hbs-parser.js → hbs-extractor.js → ┘
 
 Parser: `@glimmer/syntax`.
 
-| Handlebars                          | Lit                                   | Estado |
-| ----------------------------------- | ------------------------------------- | ------ |
-| `{{this.prop}}`                     | `${this.prop}`                        | ✅     |
-| `<div class="x">...</div>`          | `<div class="x">...</div>`            | ✅     |
-| `{{#if cond}}...{{/if}}`            | `` ${cond ? html`...` : ''} ``        | ✅     |
-| `{{#if cond}}...{{else}}...{{/if}}` | `` ${cond ? html`...` : html`...`} `` | ✅     |
-| `{{#if (eq a b)}}` / `or` / `not`  | operadores JS `===`, `\|\|`, `!`      | ✅     |
-| `{{#each items as \|item\|}}`       | `` ${items.map(item => html`...`)} `` | 🔜     |
-| `{{#unless cond}}`                  | `` ${!cond ? html`...` : ''} ``       | 🔜     |
-| `{{on "click" this.handler}}`       | `@click=${this.handler}`              | 🔜     |
+| Handlebars                          | Lit                                 | Estado |
+| ----------------------------------- | ----------------------------------- | ------ |
+| `{{this.prop}}`                     | `${this.prop}`                      | ✅     |
+| `<div class="x">...</div>`          | `<div class="x">...</div>`          | ✅     |
+| `{{#if cond}}...{{/if}}`            | ``${cond ? html`...` : ''}``        | ✅     |
+| `{{#if cond}}...{{else}}...{{/if}}` | ``${cond ? html`...` : html`...`}`` | ✅     |
+| `{{#if (eq a b)}}` / `or` / `not`   | operadores JS `===`, `\|\|`, `!`    | ✅     |
+| `{{#each items as \|item\|}}`       | ``${items.map(item => html`...`)}`` | 🔜     |
+| `{{#unless cond}}`                  | ``${!cond ? html`...` : ''}``       | 🔜     |
+| `{{on "click" this.handler}}`       | `@click=${this.handler}`            | 🔜     |
 
 Helpers desconocidos, componentes anidados y modifiers → TODOs.
 
@@ -171,6 +171,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 - Ramas: `feat/<name>` o `fix/<name>`
 - Antes de mergear: pasar tests unitarios
+- Crea las PR escritas en inglés basandote en la plantilla en `.github/pull_request_template.md`
 
 ## Comandos
 
