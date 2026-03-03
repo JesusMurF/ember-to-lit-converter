@@ -1,0 +1,14 @@
+<div class="status-badge">
+  {{#if (eq this.status "active")}}
+    <span class="badge badge--active">Active</span>
+  {{else}}
+    {{#if (eq this.status "pending")}}
+      <span class="badge badge--pending">Pending</span>
+    {{else}}
+      <span class="badge badge--inactive">Inactive</span>
+    {{/if}}
+  {{/if}}
+  {{#if this.label}}
+    <span class="status-badge__label">{{this.label}}</span>
+  {{/if}}
+</div>

@@ -188,7 +188,22 @@ function generateNode(node) {
   if (node.type === 'expression') return `\${${node.code}}`;
   if (node.type === 'text') return node.chars;
   if (node.type === 'element') return generateElement(node);
+  if (node.type === 'conditional') return generateConditional(node);
   return '';
+}
+
+/**
+ * Converts a conditional IR node to its Lit html ternary string representation.
+ * @param {{ condition: string, consequent: Array<object>, alternate: Array<object>|null }} node - IR conditional node
+ * @returns {string} Lit template fragment
+ */
+function generateConditional(node) {
+  const consequentStr = node.consequent.map(generateNode).join('');
+  const consequentLit = `html\`${consequentStr}\``;
+  const alternateLit = node.alternate
+    ? `html\`${node.alternate.map(generateNode).join('')}\``
+    : `''`;
+  return `\${${node.condition} ? ${consequentLit} : ${alternateLit}}`;
 }
 
 /**

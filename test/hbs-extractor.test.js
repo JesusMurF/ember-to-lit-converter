@@ -115,3 +115,116 @@ test('extractTemplateInfo extracts element with no attributes', () => {
 
   assert.strictEqual(info.roots[0].attrs.length, 0);
 });
+
+// {{#if}} — PathExpression conditions
+
+test('extractTemplateInfo extracts {{#if this.isActive}} as conditional node', () => {
+  const ast = parseHbsTemplate('{{#if this.isActive}}<p>Hi</p>{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots.length, 1);
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'conditional');
+  assert.strictEqual(node.condition, 'this.isActive');
+  assert.strictEqual(node.isTodo, false);
+  assert.strictEqual(node.consequent.length, 1);
+  assert.strictEqual(node.consequent[0].type, 'element');
+  assert.strictEqual(node.alternate, null);
+});
+
+test('extractTemplateInfo extracts {{#if}} with {{else}} branch', () => {
+  const ast = parseHbsTemplate('{{#if this.isActive}}<p>Hi</p>{{else}}<p>Bye</p>{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'conditional');
+  assert.notStrictEqual(node.alternate, null);
+  assert.strictEqual(node.alternate.length, 1);
+  assert.strictEqual(node.alternate[0].type, 'element');
+});
+
+test('extractTemplateInfo extracts {{#if}} with mustache in consequent', () => {
+  const ast = parseHbsTemplate('{{#if this.isActive}}{{this.name}}{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.consequent.length, 1);
+  assert.strictEqual(node.consequent[0].type, 'expression');
+  assert.strictEqual(node.consequent[0].code, 'this.name');
+});
+
+test('extractTemplateInfo extracts {{#if}} with nested element in consequent', () => {
+  const ast = parseHbsTemplate('{{#if this.show}}<div><p>Nested</p></div>{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.consequent[0].type, 'element');
+  assert.strictEqual(node.consequent[0].tag, 'div');
+  assert.strictEqual(node.consequent[0].children[0].tag, 'p');
+});
+
+test('extractTemplateInfo extracts nested {{#if}} blocks', () => {
+  const ast = parseHbsTemplate('{{#if this.a}}{{#if this.b}}<p>X</p>{{/if}}{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const outer = info.roots[0];
+  assert.strictEqual(outer.type, 'conditional');
+  assert.strictEqual(outer.consequent[0].type, 'conditional');
+  assert.strictEqual(outer.consequent[0].condition, 'this.b');
+});
+
+// {{#if}} — SubExpression helpers
+
+test('extractTemplateInfo extracts {{#if (eq this.status "active")}} condition', () => {
+  const ast = parseHbsTemplate('{{#if (eq this.status "active")}}<p>Ok</p>{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.condition, "(this.status === 'active')");
+  assert.strictEqual(node.isTodo, false);
+});
+
+test('extractTemplateInfo extracts {{#if (not-eq this.status "inactive")}} condition', () => {
+  const ast = parseHbsTemplate('{{#if (not-eq this.status "inactive")}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots[0].condition, "(this.status !== 'inactive')");
+});
+
+test('extractTemplateInfo extracts {{#if (or this.a this.b)}} condition', () => {
+  const ast = parseHbsTemplate('{{#if (or this.a this.b)}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots[0].condition, '(this.a || this.b)');
+});
+
+test('extractTemplateInfo extracts {{#if (and this.a this.b)}} condition', () => {
+  const ast = parseHbsTemplate('{{#if (and this.a this.b)}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots[0].condition, '(this.a && this.b)');
+});
+
+test('extractTemplateInfo extracts {{#if (not this.flag)}} condition', () => {
+  const ast = parseHbsTemplate('{{#if (not this.flag)}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots[0].condition, '!this.flag');
+});
+
+test('extractTemplateInfo extracts nested SubExpression in {{#if}}', () => {
+  const ast = parseHbsTemplate('{{#if (eq this.a (eq this.b "x"))}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots[0].condition, "(this.a === (this.b === 'x'))");
+  assert.strictEqual(info.roots[0].isTodo, false);
+});
+
+test('extractTemplateInfo marks unknown helper in {{#if}} as TODO', () => {
+  const ast = parseHbsTemplate('{{#if (unknownHelper this.a)}}...{{/if}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.isTodo, true);
+  assert.ok(node.condition.includes('TODO'));
+});

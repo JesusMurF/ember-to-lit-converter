@@ -4,6 +4,10 @@
   </div>
   <div class="user-card__body">
     <p class="user-card__name">{{this.fullName}}</p>
-    <p class="user-card__email">{{this.email}}</p>
+    {{#if this.hasEmail}}
+      <p class="user-card__email">{{this.email}}</p>
+    {{else}}
+      <p class="user-card__email user-card__email--empty">No email provided</p>
+    {{/if}}
   </div>
 </div>

@@ -1,3 +1,16 @@
+/** @type {Record<string, string>} Maps Ember helper names to JS binary operators. */
+const HELPER_OPERATORS = {
+  eq: '===',
+  'not-eq': '!==',
+  neq: '!==',
+  lt: '<',
+  lte: '<=',
+  gt: '>',
+  gte: '>=',
+  and: '&&',
+  or: '||',
+};
+
 /**
  * Extracts template information from a Glimmer ASTv1 into a normalized IR.
  * @param {import('@glimmer/syntax').ASTv1.Template} hbsAst - Glimmer template AST
@@ -17,6 +30,7 @@ function visitStatement(node) {
   if (node.type === 'MustacheStatement') return visitMustache(node);
   if (node.type === 'ElementNode') return visitElement(node);
   if (node.type === 'TextNode') return visitText(node);
+  if (node.type === 'BlockStatement') return visitBlock(node);
   return null;
 }
 
@@ -80,4 +94,78 @@ function visitMustache(node) {
     return { type: 'expression', code: original };
   }
   return null;
+}
+
+/**
+ * Converts a Glimmer expression param to its JS string representation.
+ * @param {import('@glimmer/syntax').ASTv1.Expression} node - Glimmer expression node
+ * @returns {string | null} JS string or null if unsupported
+ */
+function visitParam(node) {
+  if (node.type === 'PathExpression') return node.original;
+  if (node.type === 'StringLiteral') return `'${node.value}'`;
+  if (node.type === 'NumberLiteral') return String(node.value);
+  if (node.type === 'BooleanLiteral') return String(node.value);
+  if (node.type === 'SubExpression') return visitSubExpression(node);
+  return null;
+}
+
+/**
+ * Converts a SubExpression helper call to its JS condition string.
+ * Supports eq, not-eq, neq, lt, lte, gt, gte, and, or, not.
+ * @param {import('@glimmer/syntax').ASTv1.SubExpression} node - Glimmer subexpression node
+ * @returns {string | null} JS condition string or null if helper is unsupported
+ */
+function visitSubExpression(node) {
+  const helperName = node.path.original;
+
+  if (helperName === 'not') {
+    const operand = visitParam(node.params[0]);
+    return operand ? `!${operand}` : null;
+  }
+
+  const operator = HELPER_OPERATORS[helperName];
+  if (operator) {
+    const left = visitParam(node.params[0]);
+    const right = visitParam(node.params[1]);
+    return left && right ? `(${left} ${operator} ${right})` : null;
+  }
+
+  return null;
+}
+
+/**
+ * Converts a BlockStatement (if) to a conditional IR node.
+ * Only supports the `if` helper; other block helpers return null.
+ * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
+ * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | null} IR node
+ */
+function visitBlock(node) {
+  if (node.path.original !== 'if') return null;
+
+  const param = node.params[0];
+  let condition;
+  let isTodo = false;
+
+  if (param?.type === 'PathExpression') {
+    condition = param.original;
+  } else if (param?.type === 'SubExpression') {
+    const resolved = visitSubExpression(param);
+    if (resolved) {
+      condition = resolved;
+    } else {
+      condition = 'false /* TODO: condición compleja */';
+      isTodo = true;
+    }
+  } else {
+    condition = 'false /* TODO: condición compleja */';
+    isTodo = true;
+  }
+
+  const consequent = node.program.body.map(visitStatement).filter(Boolean);
+  const alternate = node.inverse
+    ? node.inverse.body.map(visitStatement).filter(Boolean)
+    : null;
+
+  return { type: 'conditional', condition, consequent, alternate, isTodo };
 }
