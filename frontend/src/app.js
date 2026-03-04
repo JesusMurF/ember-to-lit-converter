@@ -48,10 +48,45 @@ export class AppRoot extends LitElement {
     tailwindCss,
     css`
       :host {
-        display: block;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        font-family: var(--font-geist);
+        background-color: #000;
+        color: var(--color-text-primary);
+        box-sizing: border-box;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1.5px solid rgba(0, 0, 0, 0.3);
+        border-top-color: #000;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-border-medium);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
       }
     `,
   ];
@@ -104,7 +139,7 @@ export class AppRoot extends LitElement {
   }
 
   /**
-   * Handles content changes from the input Monaco editor.
+   * Handles content changes from the input code editor.
    *
    * @param {CustomEvent} e - value-change event with new code as detail
    */
@@ -126,69 +161,179 @@ export class AppRoot extends LitElement {
   }
 
   render() {
+    const lineCount = this.litCode ? this.litCode.split('\n').length : null;
+
     return html`
-      <h1 class="text-2xl font-semibold text-text-primary mb-8">
-        Ember to Lit Converter
-      </h1>
-
-      <div class="grid grid-cols-2 gap-16">
-        <div class="flex flex-col">
-          <h2 class="text-sm font-medium text-text-secondary mb-2">
-            Ember Code (Input)
-          </h2>
-          <code-editor-element
-            class="border border-border-subtle rounded-md overflow-hidden"
-            style="height: 500px"
-            .value=${this.emberCode}
-            @value-change=${this.handleInputChange}
-          ></code-editor-element>
-          <button
-            class="mt-4 px-6 py-3 bg-white text-black font-medium text-sm rounded-md cursor-pointer hover:bg-[#e5e5e5] disabled:bg-[#333333] disabled:text-[#666666] disabled:cursor-not-allowed"
-            @click=${this.convertCode}
-            ?disabled=${this.isLoading}
+      <!-- NAVBAR -->
+      <nav
+        class="flex items-center justify-between px-6 border-b border-border-subtle shrink-0"
+        style="height: 52px; background: #000;"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="flex items-center justify-center w-7 h-7 bg-white rounded text-black font-semibold text-sm select-none"
           >
-            ${this.isLoading ? 'Converting...' : 'Convert to Lit'}
-          </button>
-          ${this.error
-            ? html`<div
-                class="mt-4 p-4 text-error bg-[rgba(255,68,68,0.08)] border border-[rgba(255,68,68,0.3)] rounded-md"
-              >
-                ${this.error}
-              </div>`
-            : ''}
-        </div>
-
-        <div class="flex flex-col">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="text-sm font-medium text-text-secondary">
-              Lit Code (Output)
-            </h2>
-            <button
-              class="px-3 py-1 text-xs font-medium rounded-md cursor-pointer bg-[#1e1e1e] text-text-secondary border border-border-subtle hover:text-text-primary hover:border-[#444] disabled:opacity-30 disabled:cursor-not-allowed"
-              @click=${this.copyOutput}
-              ?disabled=${!this.litCode}
-            >
-              ${this.copied ? 'Copied!' : 'Copy'}
-            </button>
+            E
           </div>
-          <code-editor-element
-            class="border border-border-subtle rounded-md overflow-hidden"
-            style="height: 500px"
-            .value=${this.litCode}
-            readonly
-          ></code-editor-element>
+          <span class="font-medium text-text-primary text-sm tracking-tight"
+            >Ember to Lit Converter</span
+          >
+          <span
+            class="px-2 py-0.5 text-xs font-medium rounded-full border border-border-medium text-text-secondary"
+          >
+            converter
+          </span>
         </div>
-      </div>
-
-      <p class="mt-12 text-center text-sm text-text-secondary">
-        Made with ❤️ by
         <a
           href="https://x.com/JesusMurF"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-text-primary hover:underline"
-        >@JesusMurF</a>
-      </p>
+          class="text-sm text-text-secondary hover:text-text-primary"
+          style="transition: color 0.15s ease;"
+        >
+          @JesusMurF
+        </a>
+      </nav>
+
+      <!-- MAIN -->
+      <main class="flex flex-1 min-h-0 p-6 gap-4" style="background: #000;">
+        <!-- PANEL INPUT -->
+        <div
+          class="flex flex-col flex-1 min-h-0 rounded-lg border border-border-subtle overflow-hidden"
+          style="background: #0a0a0a;"
+        >
+          <!-- Card header -->
+          <div
+            class="flex items-center gap-2 px-4 py-3 border-b border-border-subtle shrink-0"
+            style="background: var(--color-bg-surface);"
+          >
+            <span
+              class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border"
+              style="background: var(--color-badge-ember-bg); border-color: var(--color-badge-ember-border); color: var(--color-badge-ember-text);"
+            >
+              Ember JS
+            </span>
+            <span class="text-xs" style="color: var(--color-text-tertiary);"
+              >Input</span
+            >
+          </div>
+
+          <!-- Editor -->
+          <div class="flex-1 min-h-0">
+            <code-editor-element
+              style="height: 100%; display: block;"
+              .value=${this.emberCode}
+              @value-change=${this.handleInputChange}
+            ></code-editor-element>
+          </div>
+
+          <!-- Card footer -->
+          <div
+            class="shrink-0 px-4 py-3 border-t border-border-subtle"
+            style="background: var(--color-bg-surface);"
+          >
+            ${this.error
+              ? html`<div
+                  class="mb-3 px-3 py-2 text-xs rounded-md border"
+                  style="color: var(--color-error); background: var(--color-error-bg); border-color: var(--color-error-border);"
+                >
+                  ${this.error}
+                </div>`
+              : ''}
+            <button
+              class="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium rounded-md cursor-pointer disabled:cursor-not-allowed"
+              style="${this.isLoading
+                ? 'background: #222; color: #555;'
+                : 'background: #fff; color: #000;'} transition: background 0.15s ease, color 0.15s ease;"
+              @click=${this.convertCode}
+              ?disabled=${this.isLoading}
+            >
+              ${this.isLoading
+                ? html`<span class="spinner"></span><span>Converting...</span>`
+                : html`<span>Convert to Lit</span>`}
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL OUTPUT -->
+        <div
+          class="flex flex-col flex-1 min-h-0 rounded-lg border border-border-subtle overflow-hidden"
+          style="background: #111111;"
+        >
+          <!-- Card header -->
+          <div
+            class="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0"
+            style="background: var(--color-bg-surface);"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border"
+                style="background: var(--color-badge-lit-bg); border-color: var(--color-badge-lit-border); color: var(--color-badge-lit-text);"
+              >
+                Lit
+              </span>
+              <span class="text-xs" style="color: var(--color-text-tertiary);"
+                >Output</span
+              >
+            </div>
+            <button
+              class="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md border border-border-subtle cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              style="background: var(--color-bg-elevated); color: var(--color-text-secondary); transition: color 0.15s ease, border-color 0.15s ease;"
+              @click=${this.copyOutput}
+              ?disabled=${!this.litCode}
+            >
+              ${this.copied
+                ? html`<span style="color: #4ade80;">Copied!</span>`
+                : html`<span>Copy</span>`}
+            </button>
+          </div>
+
+          <!-- Editor -->
+          <div class="flex-1 min-h-0">
+            <code-editor-element
+              style="height: 100%; display: block;"
+              .value=${this.litCode}
+              readonly
+            ></code-editor-element>
+          </div>
+
+          <!-- Card footer -->
+          <div
+            class="shrink-0 px-4 border-t border-border-subtle flex items-center justify-end"
+            style="background: var(--color-bg-surface); height: 60px;"
+          >
+            ${lineCount !== null
+              ? html`<span
+                  class="text-xs"
+                  style="color: var(--color-text-tertiary);"
+                  >${lineCount} lines</span
+                >`
+              : html`<span
+                  class="text-xs"
+                  style="color: var(--color-text-tertiary);"
+                  >Output will appear here</span
+                >`}
+          </div>
+        </div>
+      </main>
+
+      <!-- FOOTER -->
+      <footer
+        class="shrink-0 flex items-center justify-center py-4 border-t border-border-subtle"
+        style="background: #000;"
+      >
+        <span class="text-xs" style="color: var(--color-text-tertiary);">
+          Made with ❤️ by
+          <a
+            href="https://x.com/JesusMurF"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-text-secondary hover:text-text-primary"
+            style="transition: color 0.15s ease;"
+            >@JesusMurF</a
+          >
+        </span>
+      </footer>
     `;
   }
 }
