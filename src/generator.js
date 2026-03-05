@@ -95,7 +95,11 @@ function generateProperties(info) {
   }
 
   const props = info.trackedProperties.map((prop) => {
-    const value = prop.initialValue !== null ? ` = ${prop.initialValue}` : '';
+    const raw =
+      typeof prop.initialValue === 'string'
+        ? `'${prop.initialValue}'`
+        : prop.initialValue;
+    const value = prop.initialValue !== null ? ` = ${raw}` : '';
     return `  @property() ${prop.name}${value};`;
   });
 
