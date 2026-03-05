@@ -53,13 +53,24 @@ npm run dev
 cd frontend && npm run dev
 ```
 
-Abre http://localhost:5173, pega el código de un componente Ember y pulsa **Convert to Lit**.
+Abre http://localhost:5173. El panel de entrada tiene dos pestañas:
+
+- **JS** — pega el componente Ember (obligatorio)
+- **HBS** — pega el template Handlebars (opcional)
+
+Pulsa **Convert to Lit** para obtener el componente Lit generado.
 
 **Llamada directa a la API:**
 ```bash
+# Solo JS
 curl -X POST http://localhost:3000/api/convert \
   -H "Content-Type: application/json" \
   -d '{"code": "export default class MyComponent extends Component { @tracked count = 0; }"}'
+
+# JS + HBS
+curl -X POST http://localhost:3000/api/convert \
+  -H "Content-Type: application/json" \
+  -d '{"code": "...", "hbs": "<div>{{this.count}}</div>"}'
 ```
 
 Respuesta: `{ "litCode": "..." }`

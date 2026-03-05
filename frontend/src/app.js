@@ -30,6 +30,16 @@ export default class CounterComponent extends Component {
   }
 }`;
 
+const EXAMPLE_HBS_CODE = `<div class="counter">
+  <h1>{{this.greeting}}</h1>
+
+  {{#if this.count}}
+    <p class="value">Count: {{this.count}}</p>
+  {{else}}
+    <p class="empty">No count yet</p>
+  {{/if}}
+</div>`;
+
 /**
  * Root application component for Ember to Lit converter.
  *
@@ -38,6 +48,8 @@ export default class CounterComponent extends Component {
 export class AppRoot extends LitElement {
   static properties = {
     emberCode: { type: String },
+    hbsCode: { type: String },
+    activeTab: { type: String },
     litCode: { type: String },
     isLoading: { type: Boolean },
     error: { type: String },
@@ -94,6 +106,8 @@ export class AppRoot extends LitElement {
   constructor() {
     super();
     this.emberCode = EXAMPLE_EMBER_CODE;
+    this.hbsCode = EXAMPLE_HBS_CODE;
+    this.activeTab = 'js';
     this.litCode = '';
     this.isLoading = false;
     this.error = '';
@@ -121,7 +135,10 @@ export class AppRoot extends LitElement {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code: this.emberCode }),
+        body: JSON.stringify({
+          code: this.emberCode,
+          ...(this.hbsCode.trim() ? { hbs: this.hbsCode } : {}),
+        }),
       });
 
       if (!response.ok) {
@@ -139,12 +156,30 @@ export class AppRoot extends LitElement {
   }
 
   /**
-   * Handles content changes from the input code editor.
+   * Handles content changes from the JS code editor.
    *
    * @param {CustomEvent} e - value-change event with new code as detail
    */
-  handleInputChange(e) {
+  handleJsChange(e) {
     this.emberCode = e.detail;
+  }
+
+  /**
+   * Handles content changes from the HBS template editor.
+   *
+   * @param {CustomEvent} e - value-change event with new HBS code as detail
+   */
+  handleHbsChange(e) {
+    this.hbsCode = e.detail;
+  }
+
+  /**
+   * Switches the active input tab.
+   *
+   * @param {'js'|'hbs'} tab - Tab identifier to activate
+   */
+  switchTab(tab) {
+    this.activeTab = tab;
   }
 
   /**
@@ -202,29 +237,54 @@ export class AppRoot extends LitElement {
           class="flex flex-col flex-1 min-h-0 rounded-lg border border-border-subtle overflow-hidden"
           style="background: #0a0a0a;"
         >
-          <!-- Card header -->
+          <!-- Card header with tabs -->
           <div
-            class="flex items-center gap-2 px-4 py-3 border-b border-border-subtle shrink-0"
+            class="flex items-center justify-between px-4 py-3 border-b border-border-subtle shrink-0"
             style="background: var(--color-bg-surface);"
           >
-            <span
-              class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border"
-              style="background: var(--color-badge-ember-bg); border-color: var(--color-badge-ember-border); color: var(--color-badge-ember-text);"
-            >
-              Ember JS
-            </span>
+            <div class="flex gap-1">
+              <button
+                class="px-3 py-1 text-xs font-medium rounded-md cursor-pointer"
+                style="${this.activeTab === 'js'
+                  ? 'background: var(--color-bg-elevated); color: var(--color-text-primary);'
+                  : 'background: transparent; color: var(--color-text-secondary);'} transition: background 0.15s ease, color 0.15s ease;"
+                @click=${() => this.switchTab('js')}
+              >
+                JS
+              </button>
+              <button
+                class="px-3 py-1 text-xs font-medium rounded-md cursor-pointer"
+                style="${this.activeTab === 'hbs'
+                  ? 'background: var(--color-bg-elevated); color: var(--color-text-primary);'
+                  : 'background: transparent; color: var(--color-text-secondary);'} transition: background 0.15s ease, color 0.15s ease;"
+                @click=${() => this.switchTab('hbs')}
+              >
+                HBS
+              </button>
+            </div>
             <span class="text-xs" style="color: var(--color-text-tertiary);"
               >Input</span
             >
           </div>
 
-          <!-- Editor -->
-          <div class="flex-1 min-h-0">
-            <code-editor-element
-              style="height: 100%; display: block;"
-              .value=${this.emberCode}
-              @value-change=${this.handleInputChange}
-            ></code-editor-element>
+          <!-- Editors (visibility toggled via display to preserve CM state) -->
+          <div class="flex-1 min-h-0 relative">
+            <div style="height: 100%; ${this.activeTab === 'js' ? '' : 'display: none;'}">
+              <code-editor-element
+                style="height: 100%; display: block;"
+                .value=${this.emberCode}
+                language="javascript"
+                @value-change=${this.handleJsChange}
+              ></code-editor-element>
+            </div>
+            <div style="height: 100%; ${this.activeTab === 'hbs' ? '' : 'display: none;'}">
+              <code-editor-element
+                style="height: 100%; display: block;"
+                .value=${this.hbsCode}
+                language="hbs"
+                @value-change=${this.handleHbsChange}
+              ></code-editor-element>
+            </div>
           </div>
 
           <!-- Card footer -->
