@@ -493,3 +493,15 @@ test('generateLitComponent places services before tracked properties', () => {
   assert.ok(propertyIndex > -1, 'tracked property should be present');
   assert.ok(serviceIndex < propertyIndex, 'services should come before tracked properties');
 });
+
+test('generateLitComponent wraps string initialValue in quotes', () => {
+  const info = {
+    className: 'GreeterComponent',
+    trackedProperties: [{ name: 'name', initialValue: 'World' }],
+    imports: [],
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes("name = 'World'"), `expected name = 'World' but got: ${output}`);
+});
