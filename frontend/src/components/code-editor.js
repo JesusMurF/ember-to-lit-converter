@@ -1,6 +1,7 @@
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
+import { html as htmlLang } from '@codemirror/lang-html';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { LitElement, css, html } from 'lit';
 
@@ -52,7 +53,7 @@ export class CodeEditorElement extends LitElement {
         doc: this.value ?? '',
         extensions: [
           basicSetup,
-          javascript(),
+          this.language === 'hbs' || this.language === 'html' ? htmlLang() : javascript(),
           oneDark,
           EditorView.lineWrapping,
           EditorView.editable.of(!this.readonly),
