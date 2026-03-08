@@ -267,6 +267,49 @@ test('extractTemplateInfo extracts each with multiple children', () => {
   assert.strictEqual(node.children[0].tag, 'li');
 });
 
+// {{on}} modifier
+
+test('extractTemplateInfo extracts {{on "click" this.handler}} as @click attr', () => {
+  const ast = parseHbsTemplate('<button {{on "click" this.handleClick}}>Click</button>');
+  const info = extractTemplateInfo(ast);
+
+  const el = info.roots[0];
+  assert.strictEqual(el.type, 'element');
+  assert.strictEqual(el.tag, 'button');
+  const attr = el.attrs[0];
+  assert.strictEqual(attr.name, '@click');
+  assert.strictEqual(attr.value.type, 'expression');
+  assert.strictEqual(attr.value.code, 'this.handleClick');
+});
+
+test('extractTemplateInfo extracts {{on "input" this.handler}} as @input attr', () => {
+  const ast = parseHbsTemplate('<input {{on "input" this.onInput}} />');
+  const info = extractTemplateInfo(ast);
+
+  const attr = info.roots[0].attrs[0];
+  assert.strictEqual(attr.name, '@input');
+  assert.strictEqual(attr.value.code, 'this.onInput');
+});
+
+test('extractTemplateInfo combines static attrs and on modifier attrs', () => {
+  const ast = parseHbsTemplate('<button class="btn" {{on "click" this.save}}>Save</button>');
+  const info = extractTemplateInfo(ast);
+
+  const el = info.roots[0];
+  assert.strictEqual(el.attrs.length, 2);
+  assert.strictEqual(el.attrs[0].name, 'class');
+  assert.strictEqual(el.attrs[1].name, '@click');
+});
+
+test('extractTemplateInfo emits TODO attr for unknown modifiers', () => {
+  const ast = parseHbsTemplate('<div {{someModifier}}>X</div>');
+  const info = extractTemplateInfo(ast);
+
+  const attr = info.roots[0].attrs[0];
+  assert.ok(attr.name.includes('todo-modifier'));
+  assert.ok(attr.value.chars.includes('TODO'));
+});
+
 test('extractTemplateInfo ignores unknown block helpers', () => {
   const ast = parseHbsTemplate('{{#unknownHelper this.x}}<p>X</p>{{/unknownHelper}}');
   const info = extractTemplateInfo(ast);

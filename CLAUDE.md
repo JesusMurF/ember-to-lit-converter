@@ -110,7 +110,7 @@ Backend (Serverless) → api/convert.js  (Fastify adaptado)
 - 🔜 `@computed` → extractor + generator
 - ✅ HBS: `{{#each items as |item|}}` → `${items.map(item => html\`...\`)}`
 - 🔜 HBS: `{{#unless cond}}` → `${!cond ? html\`...\` : ''}`
-- 🔜 HBS: `{{on "click" this.handler}}` → `@click=${this.handler}`
+- ✅ HBS: `{{on "click" this.handler}}` → `@click=${this.handler}`
 - ✅ UI frontend: tabs JS/HBS en panel de entrada
 
 **Arquitectura HBS (implementada):**
@@ -132,7 +132,7 @@ Parser: `@glimmer/syntax`.
 | `{{#if (eq a b)}}` / `or` / `not`   | operadores JS `===`, `\|\|`, `!`    | ✅     |
 | `{{#each items as \|item\|}}`       | ``${items.map(item => html`...`)}`` | ✅     |
 | `{{#unless cond}}`                  | ``${!cond ? html`...` : ''}``       | 🔜     |
-| `{{on "click" this.handler}}`       | `@click=${this.handler}`            | 🔜     |
+| `{{on "click" this.handler}}`       | `@click=${this.handler}`            | ✅     |
 
 Helpers desconocidos, componentes anidados y modifiers → TODOs.
 

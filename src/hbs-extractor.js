@@ -36,13 +36,38 @@ function visitStatement(node) {
 
 /**
  * Converts an ElementNode to an element IR node with its children and attributes recursively visited.
+ * Element modifiers (e.g. `{{on "click" this.handler}}`) are converted to event binding attrs.
  * @param {import('@glimmer/syntax').ASTv1.ElementNode} node - Glimmer element node
  * @returns {{ type: 'element', tag: string, attrs: Array<object>, children: Array<object> }} IR element node
  */
 function visitElement(node) {
   const attrs = node.attributes.map(visitAttr);
+  const modifierAttrs = node.modifiers.map(visitModifier).filter(Boolean);
   const children = node.children.map(visitStatement).filter(Boolean);
-  return { type: 'element', tag: node.tag, attrs, children };
+  return { type: 'element', tag: node.tag, attrs: [...attrs, ...modifierAttrs], children };
+}
+
+/**
+ * Converts an ElementModifierStatement to an event binding attr IR node.
+ * Supports the `on` modifier: `{{on "event" this.handler}}` → `{ name: '@event', value: expression }`.
+ * Unknown modifiers are emitted as a TODO attr.
+ * @param {import('@glimmer/syntax').ASTv1.ElementModifierStatement} node - Glimmer modifier node
+ * @returns {{ name: string, value: object } | null} IR attr node or null
+ */
+function visitModifier(node) {
+  const modifierName = node.path.original;
+
+  if (modifierName === 'on') {
+    const eventName = node.params[0]?.value;
+    const handlerPath = node.params[1]?.original;
+    if (!eventName || !handlerPath) return null;
+    return { name: `@${eventName}`, value: { type: 'expression', code: handlerPath } };
+  }
+
+  return {
+    name: `data-todo-modifier-${modifierName}`,
+    value: { type: 'static', chars: `TODO: convert {{${modifierName}}} modifier` },
+  };
 }
 
 /**
