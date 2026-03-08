@@ -321,6 +321,50 @@ test('generateLitComponent renders nested conditional nodes', () => {
   assert.ok(output.includes('this.a ?'));
 });
 
+// Unless (negated conditional)
+
+test('generateLitComponent renders unless as negated conditional without else', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'conditional',
+          condition: '!this.isHidden',
+          consequent: [{ type: 'element', tag: 'p', attrs: [], children: [{ type: 'text', chars: 'Visible' }] }],
+          alternate: null,
+          isTodo: false,
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes("!this.isHidden ? html`<p>Visible</p>` : ''"));
+});
+
+test('generateLitComponent renders unless with else branch', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'conditional',
+          condition: '!this.isHidden',
+          consequent: [{ type: 'text', chars: 'A' }],
+          alternate: [{ type: 'text', chars: 'B' }],
+          isTodo: false,
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('!this.isHidden ? html`A` : html`B`'));
+});
+
 // Event binding attrs (@event)
 
 test('generateLitComponent renders @click event binding', () => {
