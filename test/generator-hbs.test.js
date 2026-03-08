@@ -321,6 +321,51 @@ test('generateLitComponent renders nested conditional nodes', () => {
   assert.ok(output.includes('this.a ?'));
 });
 
+// Event binding attrs (@event)
+
+test('generateLitComponent renders @click event binding', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'element',
+          tag: 'button',
+          attrs: [{ name: '@click', value: { type: 'expression', code: 'this.handleClick' } }],
+          children: [{ type: 'text', chars: 'Click' }],
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('<button @click=${this.handleClick}>Click</button>'));
+});
+
+test('generateLitComponent renders element with static attr and event binding', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'element',
+          tag: 'button',
+          attrs: [
+            { name: 'class', value: { type: 'static', chars: 'btn' } },
+            { name: '@click', value: { type: 'expression', code: 'this.save' } },
+          ],
+          children: [],
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('<button class="btn" @click=${this.save}></button>'));
+});
+
 // Each nodes
 
 test('generateLitComponent renders each node as .map() with html template', () => {
