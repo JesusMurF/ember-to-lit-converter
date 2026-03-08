@@ -84,13 +84,15 @@ function visitText(node) {
 }
 
 /**
- * Converts a MustacheStatement with a this.* path to an expression IR node.
+ * Converts a MustacheStatement to an expression IR node.
+ * Captures `this.*` properties and dotted paths (e.g. block-param references like `item.name`).
+ * Bare identifiers without dots (potential helper calls) are ignored.
  * @param {import('@glimmer/syntax').ASTv1.MustacheStatement} node - Glimmer mustache node
- * @returns {{ type: 'expression', code: string } | null} IR node or null if not this.*
+ * @returns {{ type: 'expression', code: string } | null} IR node or null if unsupported
  */
 function visitMustache(node) {
   const original = node.path.original;
-  if (original.startsWith('this.')) {
+  if (original.includes('.')) {
     return { type: 'expression', code: original };
   }
   return null;
@@ -135,12 +137,25 @@ function visitSubExpression(node) {
 }
 
 /**
- * Converts a BlockStatement (if) to a conditional IR node.
- * Only supports the `if` helper; other block helpers return null.
+ * Converts a BlockStatement `each` to an each IR node.
  * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
- * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | null} IR node
+ * @returns {{ type: 'each', iterable: string, item: string, children: Array<object> }} IR node
+ */
+function visitEach(node) {
+  const iterable = node.params[0]?.original ?? 'items /* TODO */';
+  const item = node.program.blockParams[0] ?? 'item';
+  const children = node.program.body.map(visitStatement).filter(Boolean);
+  return { type: 'each', iterable, item, children };
+}
+
+/**
+ * Converts a BlockStatement (if/each) to the appropriate IR node.
+ * Only supports `if` and `each` helpers; other block helpers return null.
+ * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
+ * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | { type: 'each', iterable: string, item: string, children: Array<object> } | null} IR node
  */
 function visitBlock(node) {
+  if (node.path.original === 'each') return visitEach(node);
   if (node.path.original !== 'if') return null;
 
   const param = node.params[0];

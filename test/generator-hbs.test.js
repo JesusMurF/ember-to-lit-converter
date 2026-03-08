@@ -321,6 +321,48 @@ test('generateLitComponent renders nested conditional nodes', () => {
   assert.ok(output.includes('this.a ?'));
 });
 
+// Each nodes
+
+test('generateLitComponent renders each node as .map() with html template', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'each',
+          iterable: 'this.items',
+          item: 'item',
+          children: [{ type: 'element', tag: 'li', attrs: [], children: [{ type: 'expression', code: 'item.name' }] }],
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('this.items.map((item) => html`<li>${item.name}</li>`)'));
+});
+
+test('generateLitComponent renders each node with text child', () => {
+  const info = {
+    ...baseInfo,
+    template: {
+      roots: [
+        {
+          type: 'each',
+          iterable: 'this.tags',
+          item: 'tag',
+          children: [{ type: 'expression', code: 'tag' }],
+        },
+      ],
+    },
+  };
+
+  const output = generateLitComponent(info);
+
+  assert.ok(output.includes('this.tags.map((tag) => html`${tag}`)'));
+});
+
 test('generateLitComponent interpolates helper-resolved condition string', () => {
   const info = {
     ...baseInfo,

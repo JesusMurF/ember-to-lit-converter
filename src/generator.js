@@ -193,7 +193,18 @@ function generateNode(node) {
   if (node.type === 'text') return node.chars;
   if (node.type === 'element') return generateElement(node);
   if (node.type === 'conditional') return generateConditional(node);
+  if (node.type === 'each') return generateEach(node);
   return '';
+}
+
+/**
+ * Converts an each IR node to its Lit html `.map()` string representation.
+ * @param {{ iterable: string, item: string, children: Array<object> }} node - IR each node
+ * @returns {string} Lit template fragment
+ */
+function generateEach(node) {
+  const childrenStr = node.children.map(generateNode).join('');
+  return `\${${node.iterable}.map((${node.item}) => html\`${childrenStr}\`)}`;
 }
 
 /**
