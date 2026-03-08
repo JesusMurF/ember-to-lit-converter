@@ -228,3 +228,48 @@ test('extractTemplateInfo marks unknown helper in {{#if}} as TODO', () => {
   assert.strictEqual(node.isTodo, true);
   assert.ok(node.condition.includes('TODO'));
 });
+
+// {{#each}}
+
+test('extractTemplateInfo extracts {{#each this.items as |item|}} as each node', () => {
+  const ast = parseHbsTemplate('{{#each this.items as |item|}}<p>{{item.name}}</p>{{/each}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots.length, 1);
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'each');
+  assert.strictEqual(node.iterable, 'this.items');
+  assert.strictEqual(node.item, 'item');
+  assert.strictEqual(node.children.length, 1);
+  assert.strictEqual(node.children[0].type, 'element');
+  assert.strictEqual(node.children[0].tag, 'p');
+});
+
+test('extractTemplateInfo extracts each with expression child', () => {
+  const ast = parseHbsTemplate('{{#each this.users as |user|}}{{user.name}}{{/each}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'each');
+  assert.strictEqual(node.iterable, 'this.users');
+  assert.strictEqual(node.item, 'user');
+  assert.strictEqual(node.children[0].type, 'expression');
+  assert.strictEqual(node.children[0].code, 'user.name');
+});
+
+test('extractTemplateInfo extracts each with multiple children', () => {
+  const ast = parseHbsTemplate('{{#each this.items as |item|}}<li>{{item.title}}</li>{{/each}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'each');
+  assert.strictEqual(node.children.length, 1);
+  assert.strictEqual(node.children[0].tag, 'li');
+});
+
+test('extractTemplateInfo ignores unknown block helpers', () => {
+  const ast = parseHbsTemplate('{{#unknownHelper this.x}}<p>X</p>{{/unknownHelper}}');
+  const info = extractTemplateInfo(ast);
+
+  assert.strictEqual(info.roots.length, 0);
+});
