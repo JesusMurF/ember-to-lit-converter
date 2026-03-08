@@ -208,16 +208,11 @@ function visitUnless(node) {
 }
 
 /**
- * Converts a BlockStatement (if/unless/each) to the appropriate IR node.
- * Supports `if`, `unless`, and `each` helpers; other block helpers return null.
+ * Converts a BlockStatement `if` to a conditional IR node.
  * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
- * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | { type: 'each', iterable: string, item: string, children: Array<object> } | null} IR node
+ * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean }} IR node
  */
-function visitBlock(node) {
-  if (node.path.original === 'each') return visitEach(node);
-  if (node.path.original === 'unless') return visitUnless(node);
-  if (node.path.original !== 'if') return null;
-
+function visitIf(node) {
   const param = node.params[0];
   let condition;
   let isTodo = false;
@@ -243,4 +238,17 @@ function visitBlock(node) {
     : null;
 
   return { type: 'conditional', condition, consequent, alternate, isTodo };
+}
+
+/**
+ * Dispatches a BlockStatement to the appropriate visitor based on the helper name.
+ * Supports `if`, `unless`, and `each`; other block helpers return null.
+ * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
+ * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | { type: 'each', iterable: string, item: string, children: Array<object> } | null} IR node
+ */
+function visitBlock(node) {
+  if (node.path.original === 'if') return visitIf(node);
+  if (node.path.original === 'unless') return visitUnless(node);
+  if (node.path.original === 'each') return visitEach(node);
+  return null;
 }
