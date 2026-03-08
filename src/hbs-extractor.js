@@ -174,13 +174,48 @@ function visitEach(node) {
 }
 
 /**
- * Converts a BlockStatement (if/each) to the appropriate IR node.
- * Only supports `if` and `each` helpers; other block helpers return null.
+ * Converts a BlockStatement `unless` to a conditional IR node with a negated condition.
+ * `{{#unless cond}}` is equivalent to `{{#if !cond}}`.
+ * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
+ * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean }} IR node
+ */
+function visitUnless(node) {
+  const param = node.params[0];
+  let condition;
+  let isTodo = false;
+
+  if (param?.type === 'PathExpression') {
+    condition = `!${param.original}`;
+  } else if (param?.type === 'SubExpression') {
+    const resolved = visitSubExpression(param);
+    if (resolved) {
+      condition = `!${resolved}`;
+    } else {
+      condition = 'false /* TODO: condición compleja */';
+      isTodo = true;
+    }
+  } else {
+    condition = 'false /* TODO: condición compleja */';
+    isTodo = true;
+  }
+
+  const consequent = node.program.body.map(visitStatement).filter(Boolean);
+  const alternate = node.inverse
+    ? node.inverse.body.map(visitStatement).filter(Boolean)
+    : null;
+
+  return { type: 'conditional', condition, consequent, alternate, isTodo };
+}
+
+/**
+ * Converts a BlockStatement (if/unless/each) to the appropriate IR node.
+ * Supports `if`, `unless`, and `each` helpers; other block helpers return null.
  * @param {import('@glimmer/syntax').ASTv1.BlockStatement} node - Glimmer block node
  * @returns {{ type: 'conditional', condition: string, consequent: Array<object>, alternate: Array<object>|null, isTodo: boolean } | { type: 'each', iterable: string, item: string, children: Array<object> } | null} IR node
  */
 function visitBlock(node) {
   if (node.path.original === 'each') return visitEach(node);
+  if (node.path.original === 'unless') return visitUnless(node);
   if (node.path.original !== 'if') return null;
 
   const param = node.params[0];

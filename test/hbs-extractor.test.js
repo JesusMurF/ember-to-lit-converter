@@ -267,6 +267,48 @@ test('extractTemplateInfo extracts each with multiple children', () => {
   assert.strictEqual(node.children[0].tag, 'li');
 });
 
+// {{#unless}}
+
+test('extractTemplateInfo extracts {{#unless this.isHidden}} as negated conditional', () => {
+  const ast = parseHbsTemplate('{{#unless this.isHidden}}<p>Visible</p>{{/unless}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.type, 'conditional');
+  assert.strictEqual(node.condition, '!this.isHidden');
+  assert.strictEqual(node.isTodo, false);
+  assert.strictEqual(node.consequent.length, 1);
+  assert.strictEqual(node.alternate, null);
+});
+
+test('extractTemplateInfo extracts {{#unless}} with {{else}} branch', () => {
+  const ast = parseHbsTemplate('{{#unless this.isHidden}}<p>A</p>{{else}}<p>B</p>{{/unless}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.condition, '!this.isHidden');
+  assert.notStrictEqual(node.alternate, null);
+  assert.strictEqual(node.alternate.length, 1);
+});
+
+test('extractTemplateInfo extracts {{#unless (eq a b)}} with negated subexpression', () => {
+  const ast = parseHbsTemplate('{{#unless (eq this.status "active")}}<p>No</p>{{/unless}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.condition, "!(this.status === 'active')");
+  assert.strictEqual(node.isTodo, false);
+});
+
+test('extractTemplateInfo marks unknown helper in {{#unless}} as TODO', () => {
+  const ast = parseHbsTemplate('{{#unless (unknownHelper this.a)}}...{{/unless}}');
+  const info = extractTemplateInfo(ast);
+
+  const node = info.roots[0];
+  assert.strictEqual(node.isTodo, true);
+  assert.ok(node.condition.includes('TODO'));
+});
+
 // {{on}} modifier
 
 test('extractTemplateInfo extracts {{on "click" this.handler}} as @click attr', () => {
