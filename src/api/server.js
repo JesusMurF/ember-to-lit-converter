@@ -19,9 +19,12 @@ export function buildServer(options = {}) {
     },
   });
 
-  fastify.register(cors, {
-    origin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  });
+  const corsOrigin =
+    process.env.CORS_ORIGIN === '*'
+      ? true
+      : process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+  fastify.register(cors, { origin: corsOrigin });
 
   fastify.register(convertRoutes);
 
