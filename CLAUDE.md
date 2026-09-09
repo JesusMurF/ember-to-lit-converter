@@ -24,6 +24,7 @@ Ember → parser.js → AST → extractor.js → IR → generator.js → Lit
 {
   className: string,
   trackedProperties: [{ name: string, initialValue: any }],
+  services: [{ name: string, serviceName: string }],
   imports: [{ source: string, specifiers: string[] }],
   methods: [{ name: string, params: string[], body: string, isAction: boolean }],
   getters: [{ name: string, body: string }],
@@ -38,8 +39,17 @@ Ember → parser.js → AST → extractor.js → IR → generator.js → Lit
 ```javascript
 { type: 'expression', code: string }
 { type: 'text', chars: string }
-{ type: 'element', tag: string, attrs: Array<{ name, value }>, children: Array<IRNode> }
+{ type: 'element', tag: string, attrs: Array<{ name: string, value: IRAttrValue }>, children: Array<IRNode> }
 { type: 'conditional', condition: string, consequent: Array<IRNode>, alternate: Array<IRNode> | null, isTodo: boolean }
+{ type: 'each', iterable: string, item: string, children: Array<IRNode> }
+```
+
+**IRAttrValue types (`element.attrs[].value`):**
+
+```javascript
+{ type: 'static', chars: string }
+{ type: 'expression', code: string }
+{ type: 'concat', parts: Array<{ type: 'static', chars: string } | { type: 'expression', code: string }> }
 ```
 
 ## Workflow de Extensión
@@ -127,18 +137,23 @@ Parser: `@glimmer/syntax`.
 | ----------------------------------- | ----------------------------------- | ------ |
 | `{{this.prop}}`                     | `${this.prop}`                      | ✅     |
 | `<div class="x">...</div>`          | `<div class="x">...</div>`          | ✅     |
+| `class="a {{this.b}}"` (concat)     | `class="a ${this.b}"`               | ✅     |
 | `{{#if cond}}...{{/if}}`            | ``${cond ? html`...` : ''}``        | ✅     |
 | `{{#if cond}}...{{else}}...{{/if}}` | ``${cond ? html`...` : html`...`}`` | ✅     |
-| `{{#if (eq a b)}}` / `or` / `not`   | operadores JS `===`, `\|\|`, `!`    | ✅     |
+| `{{#if (eq a b)}}` (también `not-eq`, `neq`, `lt`, `lte`, `gt`, `gte`, `and`, `or`, `not`) | operadores JS `===`, `!==`, `<`, `<=`, `>`, `>=`, `&&`, `\|\|`, `!` | ✅ |
 | `{{#each items as \|item\|}}`       | ``${items.map(item => html`...`)}`` | ✅     |
 | `{{#unless cond}}`                  | ``${!cond ? html`...` : ''}``       | ✅     |
 | `{{on "click" this.handler}}`       | `@click=${this.handler}`            | ✅     |
 
-Helpers desconocidos, componentes anidados y modifiers → TODOs.
+Helpers desconocidos, componentes anidados y modifiers (excepto `on`) → TODOs.
+
+## Servicios (`@service` / `@inject`)
+
+Se extraen a `info.services` (con o sin nombre inyectado: `@service('store') myStore`) y el generator emite un stub `nombre = null;` con un comentario TODO indicando migrar al patrón de DI preferido (singleton, reactive controller, context API...). No se resuelve la inyección real.
 
 ## Fuera de Scope
 
-Servicios, observers, mixins, modifiers complejos, routing.
+Observers, mixins, modifiers complejos (excepto `on`), routing.
 
 ## Linting
 
